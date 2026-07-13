@@ -64,6 +64,25 @@ function local_rucksack_get_logo_datauri() {
 }
 
 /**
+ * Return the custom template content configured in the block.
+ *
+ * @return string|false
+ */
+function local_rucksack_get_custom_template() {
+    $fs = get_file_storage();
+    $context = context_system::instance();
+    $files = $fs->get_area_files($context->id, 'block_rucksack', 'template', 0, 'sortorder', false);
+
+    foreach ($files as $file) {
+        if (!$file->is_directory()) {
+            return $file->get_content();
+        }
+    }
+
+    return false;
+}
+
+/**
  * Returns the configured encryption key.
  *
  * @return string

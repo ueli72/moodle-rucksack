@@ -18,6 +18,8 @@ namespace local_rucksack\output;
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once($GLOBALS['CFG']->dirroot . '/local/rucksack/lib.php');
+
 use plugin_renderer_base;
 
 /**
@@ -36,6 +38,41 @@ class renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_earned_badges(earned_badges $badges) {
-        return $this->render_from_template('local_rucksack/earned_badges', $badges->export_for_template($this));
+        return $this->render_earned_badges_data($badges->export_for_template($this));
+    }
+
+    /**
+     * Render the earned badges page from a pre-exported data object.
+     *
+     * Used by both the screen view and the PDF export so that a custom template
+     * configured in the block is honoured everywhere.
+     *
+     * @param stdClass $data
+     * @return string
+     */
+    public function render_earned_badges_data($data) {
+        $template = local_rucksack_get_custom_template();
+        if ($template) {
+            return $this->render_from_string($template, $data);
+        }
+        return $this->render_from_template('local_rucksack/earned_badges', $data);
+    }
+
+    /**
+     * Render output from a Mustache template string while keeping the standard
+     * helpers (str, pix, ...) and partials loader.
+     *
+     * @param string $templatestring
+     * @param stdClass $data
+     * @return string
+     */
+    protected function render_from_string($templatestring, $data) {
+        $mustache = $this->get_mustache();
+        $partialsloader = $mustache->getPartialsLoader();
+        $mustache->setLoader(new \Mustache\Loader\ArrayLoader(['__custom_template__' => $templatestring]));
+        if ($partialsloader) {
+            $mustache->setPartialsLoader($partialsloader);
+        }
+        return $mustache->render('__custom_template__', $data);
     }
 }

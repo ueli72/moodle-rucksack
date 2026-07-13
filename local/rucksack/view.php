@@ -89,7 +89,7 @@ if ($canmanage) {
         }
 }
 
-$content = $renderer->render_from_template('local_rucksack/earned_badges', $data);
+$content = $renderer->render_earned_badges_data($data);
 
 if ($canmanage) {
     $selectorhtml = '<form method="get" action="' . $CFG->wwwroot . '/local/rucksack/view.php" class="local-rucksack-user-selector form-inline">';

@@ -54,7 +54,7 @@ $data = $renderable->export_for_pdf($renderer);
 // PDF uses the same template as the screen, but hides the action buttons.
 $data->showpdfbutton = false;
 
-$html = $renderer->render_from_template('local_rucksack/earned_badges', $data);
+$html = $renderer->render_earned_badges_data($data);
 
 // Convert to standalone HTML with embedded CSS and images.
 $html = local_rucksack_make_pdf_html($html, fullname($targetuser));
