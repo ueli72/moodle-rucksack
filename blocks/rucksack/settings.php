@@ -32,10 +32,3 @@ $settings->add(new admin_setting_configcheckbox('rucksack/foo',
                                                  get_string('labelfoo', 'block_rucksack'),
                                                  get_string('descfoo', 'block_rucksack'),
                                                  '0'));
-
-$settings->add(new admin_setting_configstoredfile('block_rucksack/logo',
-                                                  get_string('logo', 'block_rucksack'),
-                                                  get_string('logo_desc', 'block_rucksack'),
-                                                  'logo',
-                                                  0,
-                                                  ['accepted_types' => ['.png', '.jpg', '.jpeg', '.gif', '.svg']]));

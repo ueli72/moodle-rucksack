@@ -39,4 +39,4 @@ $string['copied'] = 'Die Adresse wurde in die Zwischenablage kopiert. Sie könne
 $string['block_rucksack:myaddinstance'] = 'Rucksack-Block zu meiner Seite hinzufügen';
 $string['block_rucksack:addinstance'] = 'Rucksack-Block hinzufügen';
 $string['logo'] = 'Logo';
-$string['logo_desc'] = 'Logo, das oben rechts auf der öffentlichen Rucksack-Seite und im PDF angezeigt wird.';
+$string['logo_desc'] = 'Logo, das oben rechts auf der öffentlichen Rucksack-Seite und im PDF angezeigt wird. Es wird global für alle Rucksack-Seiten verwendet.';

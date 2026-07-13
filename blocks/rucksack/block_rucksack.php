@@ -135,6 +135,19 @@ class block_rucksack extends block_base {
         return true;
     }
 
+    public function instance_config_save($data, $nolongerused = false) {
+        if (!empty($data->config_logo)) {
+            file_save_draft_area_files(
+                $data->config_logo,
+                context_system::instance()->id,
+                'block_rucksack',
+                'logo',
+                0
+            );
+        }
+        return parent::instance_config_save($data, $nolongerused);
+    }
+
     public function cron() {
         mtrace('Hey, my cron script is running');
         return true;
