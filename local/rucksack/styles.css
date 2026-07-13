@@ -191,15 +191,22 @@
 }
 
 .local-rucksack-badge-description ul {
-    list-style: disc;
-    list-style-position: inside;
+    list-style: none;
     padding-left: 0;
     margin: 0 0 0.25rem;
 }
 
 .local-rucksack-badge-description ul li {
-    margin-left: 0;
-    padding-left: 0;
+    position: relative;
+    padding-left: 1em;
+    margin-bottom: 0.1rem;
+}
+
+.local-rucksack-badge-description ul li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 .local-rucksack-badge-date {
