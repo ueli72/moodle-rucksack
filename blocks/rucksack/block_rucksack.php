@@ -136,9 +136,9 @@ class block_rucksack extends block_base {
     }
 
     public function instance_config_save($data, $nolongerused = false) {
-        if (!empty($data->config_logo)) {
+        if (!empty($data->logo)) {
             file_save_draft_area_files(
-                $data->config_logo,
+                $data->logo,
                 context_system::instance()->id,
                 'block_rucksack',
                 'logo',
