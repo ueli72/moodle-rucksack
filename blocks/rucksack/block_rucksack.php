@@ -62,45 +62,49 @@ class block_rucksack extends block_base {
 
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-block']);
 
-        // Copy / open buttons.
-        $this->content->text .= html_writer::start_tag('div', ['style' => 'float:left; margin-right:1rem;']);
+        // URL + action icons.
+        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-url-line']);
         $this->content->text .= html_writer::empty_tag('input', [
             'type' => 'text',
             'value' => $viewurl,
             'id' => 'qrcodeurl',
             'class' => 'form-control',
-            'style' => 'margin-bottom:0.5rem;',
+            'readonly' => 'readonly',
         ]);
-        $this->content->text .= html_writer::tag('button', get_string('open', 'block_rucksack'), [
-            'onclick' => "window.open('" . $viewurl . "','_blank')",
-            'class' => 'btn btn-secondary',
-            'type' => 'button',
-        ]);
-        $this->content->text .= ' ';
-        $this->content->text .= html_writer::tag('button', get_string('copytoclipboard', 'block_rucksack'), [
+        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-actions']);
+        $this->content->text .= html_writer::tag('button', $OUTPUT->pix_icon('t/copy', get_string('copytoclipboard', 'block_rucksack')), [
             'onclick' => 'copyQRCode()',
-            'class' => 'btn btn-secondary',
+            'class' => 'btn btn-icon',
             'type' => 'button',
+            'title' => get_string('copytoclipboard', 'block_rucksack'),
         ]);
-        $this->content->text .= ' ';
-        $this->content->text .= html_writer::tag('a', get_string('downloadpdf', 'block_rucksack'), [
+        $this->content->text .= html_writer::tag('button', $OUTPUT->pix_icon('i/open', get_string('open', 'block_rucksack')), [
+            'onclick' => "window.open('" . $viewurl . "','_blank')",
+            'class' => 'btn btn-icon',
+            'type' => 'button',
+            'title' => get_string('open', 'block_rucksack'),
+        ]);
+        $this->content->text .= html_writer::tag('a', $OUTPUT->pix_icon('f/pdf', get_string('downloadpdf', 'block_rucksack')), [
             'href' => $pdfurl,
             'target' => '_blank',
-            'class' => 'btn btn-secondary',
+            'class' => 'btn btn-icon',
+            'title' => get_string('downloadpdf', 'block_rucksack'),
         ]);
+        $this->content->text .= html_writer::end_tag('div');
         $this->content->text .= html_writer::end_tag('div');
 
         // QR code.
         $options = new QROptions;
         $options->outputType = QROutputInterface::GDIMAGE_PNG;
+        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-qr']);
         $this->content->text .= html_writer::empty_tag('img', [
             'src' => (new QRCode($options))->render($viewurl),
-            'width' => '150',
-            'height' => '150',
+            'width' => '120',
+            'height' => '120',
             'alt' => get_string('qrcode', 'block_rucksack'),
         ]);
         $this->content->text .= html_writer::end_tag('div');
-        $this->content->text .= html_writer::tag('div', '', ['style' => 'clear:both;']);
+        $this->content->text .= html_writer::end_tag('div');
 
         // Copy script.
         $this->content->text .= html_writer::script('function copyQRCode() {
