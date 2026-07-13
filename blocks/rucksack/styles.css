@@ -90,6 +90,15 @@
     min-height: 28px;
 }
 
+.block_rucksack .local-rucksack-big-actions .btn-eye .icon {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+    line-height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+}
+
 .block_rucksack .local-rucksack-qr {
     flex: 0 0 auto;
 }

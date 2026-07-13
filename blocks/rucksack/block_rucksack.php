@@ -82,9 +82,14 @@ class block_rucksack extends block_base {
 
         // Open / PDF action icons.
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-big-actions']);
-        $this->content->text .= html_writer::tag('button', $OUTPUT->pix_icon('i/show', get_string('open', 'block_rucksack')), [
+        $eyeicon = html_writer::tag('i', '', [
+            'class' => 'icon fa fa-eye fa-fw',
+            'title' => get_string('open', 'block_rucksack'),
+            'aria-label' => get_string('open', 'block_rucksack'),
+        ]);
+        $this->content->text .= html_writer::tag('button', $eyeicon, [
             'onclick' => "window.open('" . $viewurl . "','_blank')",
-            'class' => 'btn btn-big',
+            'class' => 'btn btn-big btn-eye',
             'type' => 'button',
             'title' => get_string('open', 'block_rucksack'),
         ]);
