@@ -42,4 +42,6 @@ $string['logo'] = 'Logo';
 $string['logo_desc'] = 'Logo, das oben rechts auf der öffentlichen Rucksack-Seite und im PDF angezeigt wird. Es wird global für alle Rucksack-Seiten verwendet.';
 $string['template'] = 'Vorlage';
 $string['template_desc'] = 'Benutzerdefinierte Mustache-/HTML-Vorlage für die öffentliche Rucksack-Seite und das PDF. Wenn keine Datei hochgeladen wird, wird die Standardvorlage verwendet.';
+$string['template_badge_row'] = 'Badge-Zeilen-Vorlage';
+$string['template_badge_row_desc'] = 'Benutzerdefinierte Mustache-/HTML-Vorlage für eine einzelne Badge-Zeile (Partial). Wenn keine Datei hochgeladen wird, wird das Standard-Partial verwendet.';
 $string['downloaddefaulttemplates'] = 'Standardvorlagen herunterladen:';

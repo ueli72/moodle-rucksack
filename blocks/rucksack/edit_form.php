@@ -28,6 +28,16 @@ class block_rucksack_edit_form extends block_edit_form {
         ]);
         $mform->addHelpButton('config_template', 'template', 'block_rucksack');
 
+        // Badge row partial upload.
+        $mform->addElement('filemanager', 'config_template_badge_row', get_string('template_badge_row', 'block_rucksack'), null, [
+            'subdirs' => 0,
+            'maxbytes' => 1 * 1024 * 1024,
+            'areamaxbytes' => 1 * 1024 * 1024,
+            'maxfiles' => 1,
+            'accepted_types' => ['.mustache', '.html', '.txt'],
+        ]);
+        $mform->addHelpButton('config_template_badge_row', 'template_badge_row', 'block_rucksack');
+
         $mainurl = $CFG->wwwroot . '/blocks/rucksack/download_default_template.php?type=main';
         $partialurl = $CFG->wwwroot . '/blocks/rucksack/download_default_template.php?type=badge_row';
         $downloadlinks = html_writer::tag('strong', get_string('downloaddefaulttemplates', 'block_rucksack')) . ' ' .
@@ -44,5 +54,9 @@ class block_rucksack_edit_form extends block_edit_form {
         $draftitemidtemplate = file_get_unused_draft_itemid();
         file_prepare_draft_area($draftitemidtemplate, $context->id, 'block_rucksack', 'template', 0);
         $mform->setDefault('config_template', $draftitemidtemplate);
+
+        $draftitemidpartial = file_get_unused_draft_itemid();
+        file_prepare_draft_area($draftitemidpartial, $context->id, 'block_rucksack', 'template_partial', 0);
+        $mform->setDefault('config_template_badge_row', $draftitemidpartial);
     }
 }

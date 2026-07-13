@@ -154,6 +154,15 @@ class block_rucksack extends block_base {
                 0
             );
         }
+        if (!empty($data->template_badge_row)) {
+            file_save_draft_area_files(
+                $data->template_badge_row,
+                context_system::instance()->id,
+                'block_rucksack',
+                'template_partial',
+                0
+            );
+        }
         return parent::instance_config_save($data, $nolongerused);
     }
 

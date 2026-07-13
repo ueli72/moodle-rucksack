@@ -40,7 +40,7 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function block_rucksack_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
-    if ($filearea !== 'logo' && $filearea !== 'template') {
+    if ($filearea !== 'logo' && $filearea !== 'template' && $filearea !== 'template_partial') {
         return false;
     }
 

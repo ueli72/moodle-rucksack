@@ -68,11 +68,9 @@ class renderer extends plugin_renderer_base {
      */
     protected function render_from_string($templatestring, $data) {
         $mustache = $this->get_mustache();
-        $partialsloader = $mustache->getPartialsLoader();
+        $defaultloader = $mustache->getLoader();
         $mustache->setLoader(new \Mustache\Loader\ArrayLoader(['__custom_template__' => $templatestring]));
-        if ($partialsloader) {
-            $mustache->setPartialsLoader($partialsloader);
-        }
+        $mustache->setPartialsLoader(new mustache_partial_loader($defaultloader));
         return $mustache->render('__custom_template__', $data);
     }
 }
