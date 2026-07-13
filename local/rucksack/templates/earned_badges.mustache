@@ -1,0 +1,59 @@
+<div class="local-rucksack-container">
+    <header class="local-rucksack-header">
+        <h1>{{#str}}badgesfor, local_rucksack{{/str}} {{username}}</h1>
+        <p class="local-rucksack-meta">{{#str}}issuedon, local_rucksack{{/str}} {{date}}</p>
+        {{#showpdfbutton}}
+        <div class="local-rucksack-actions">
+            <a href="{{pdfurl}}" class="btn btn-secondary" target="_blank">{{#str}}downloadpdf, local_rucksack{{/str}}</a>
+            <button type="button" class="btn btn-secondary" onclick="window.print()">{{#str}}print, local_rucksack{{/str}}</button>
+        </div>
+        {{/showpdfbutton}}
+    </header>
+
+    {{#nodata}}
+    <p class="local-rucksack-empty">{{#str}}nobadges, local_rucksack{{/str}}</p>
+    {{/nodata}}
+
+    {{^nodata}}
+    <ul class="local-rucksack-tree">
+        {{#plans}}
+        <li class="local-rucksack-framework">
+            <h2 class="local-rucksack-framework-title">{{plan}}</h2>
+
+            {{#planbadges.0}}
+            <div class="local-rucksack-badge-list">
+                {{#planbadges}}
+                    {{> local_rucksack/badge_row}}
+                {{/planbadges}}
+            </div>
+            {{/planbadges.0}}
+
+            {{#sections.0}}
+            {{#sections}}
+            <div class="local-rucksack-competency level-{{level}}">
+                {{#haschildren}}
+                <h3 class="local-rucksack-competency-title">{{name}}</h3>
+                {{/haschildren}}
+                {{^haschildren}}
+                {{^hidetitle}}
+                <h3 class="local-rucksack-competency-title">{{name}}</h3>
+                {{/hidetitle}}
+                {{/haschildren}}
+
+                {{#hasbadges}}
+                <div class="local-rucksack-badge-list">
+                    {{#badgerows}}
+                    {{#.}}
+                    {{> local_rucksack/badge_row}}
+                    {{/.}}
+                    {{/badgerows}}
+                </div>
+                {{/hasbadges}}
+            </div>
+            {{/sections}}
+            {{/sections.0}}
+        </li>
+        {{/plans}}
+    </ul>
+    {{/nodata}}
+</div>

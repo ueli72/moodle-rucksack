@@ -1,0 +1,322 @@
+/* local_rucksack/styles.css */
+
+.local-rucksack-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-family: inherit;
+}
+
+.local-rucksack-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.local-rucksack-header h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.local-rucksack-meta {
+    color: #6c757d;
+    margin: 0 0 0.75rem;
+}
+
+.local-rucksack-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.local-rucksack-actions .btn {
+    text-decoration: none;
+}
+
+.local-rucksack-tree,
+.local-rucksack-competencies {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Flat hierarchy: no indentation and no visual nesting */
+.local-rucksack-competencies .local-rucksack-competencies {
+    padding-left: 0;
+    margin-left: 0;
+    border-left: none;
+}
+
+.local-rucksack-framework {
+    margin-bottom: 1rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.local-rucksack-framework-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.local-rucksack-competency {
+    margin-bottom: 0.75rem;
+    padding-left: 0;
+    border-left: none;
+}
+
+/* Decreasing font sizes by hierarchy level */
+.local-rucksack-competency > .local-rucksack-competency-title,
+.local-rucksack-competency.level-1 > .local-rucksack-competency-title {
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    margin: 0 0 0.35rem !important;
+}
+
+.local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
+.local-rucksack-competency.level-2 > .local-rucksack-competency-title {
+    font-size: 0.95rem !important;
+}
+
+.local-rucksack-competency .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
+.local-rucksack-competency.level-3 > .local-rucksack-competency-title {
+    font-size: 0.9rem !important;
+}
+
+.local-rucksack-competency .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
+.local-rucksack-competency.level-4 > .local-rucksack-competency-title {
+    font-size: 0.85rem !important;
+}
+
+.local-rucksack-competency .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
+.local-rucksack-competency.level-5 > .local-rucksack-competency-title {
+    font-size: 0.8rem !important;
+}
+
+.local-rucksack-competency-desc {
+    margin: 0 0 0.5rem;
+    color: #495057;
+    font-size: 0.85rem;
+}
+
+/* Badge grid: 2 columns */
+.local-rucksack-badge-list {
+    display: block;
+}
+
+.local-rucksack-badge-row {
+    display: inline-flex;
+    align-items: flex-start;
+    vertical-align: top;
+    width: 48%;
+    margin: 0 2% 0.5rem 0;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.25rem;
+}
+
+.local-rucksack-badge-row:nth-child(2n) {
+    margin-right: 0;
+}
+
+@media (max-width: 768px) {
+    .local-rucksack-badge-row {
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+.local-rucksack-badge-image {
+    flex: 0 0 120px;
+    max-width: 120px;
+    padding-right: 20px;
+}
+
+.local-rucksack-badge-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0.25rem;
+}
+
+.local-rucksack-badge-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.local-rucksack-badge-name {
+    margin: 0 0 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.local-rucksack-badge-description {
+    color: #333;
+    line-height: 1.25;
+    font-size: 0.8rem;
+}
+
+.local-rucksack-badge-description p {
+    margin: 0 0 0.25rem;
+}
+
+.local-rucksack-badge-description p:last-child {
+    margin-bottom: 0;
+}
+
+.local-rucksack-badge-date {
+    margin: 0.25rem 0 0;
+    color: #6c757d;
+    font-size: 0.75rem;
+}
+
+.local-rucksack-badge-grid {
+    display: block;
+}
+
+.local-rucksack-badge-grid::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.local-rucksack-badge-clear {
+    clear: both;
+}
+
+/* PDF float layout */
+.local-rucksack-badge-float {
+    float: left;
+    width: 48%;
+    margin: 0 2% 0.3rem 0;
+    padding: 0.3rem;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.25rem;
+}
+
+.local-rucksack-badge-float:nth-child(2n) {
+    margin-right: 0;
+}
+
+.local-rucksack-badge-float .local-rucksack-badge-img {
+    float: left;
+    width: 100px;
+    height: auto;
+    margin-right: 10px;
+}
+
+/* PDF table layout */
+.local-rucksack-badge-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.35rem;
+}
+
+.local-rucksack-badge-table td {
+    width: 50%;
+    vertical-align: top;
+    padding: 0.2rem;
+    border: 1px solid #e0e0e0;
+}
+
+.local-rucksack-badge-inner {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.local-rucksack-badge-inner td {
+    width: auto;
+    border: none;
+    padding: 0;
+}
+
+.local-rucksack-badge-inner .local-rucksack-badge-image {
+    width: 90px;
+    padding-right: 10px;
+}
+
+.local-rucksack-badge-inner .local-rucksack-badge-img {
+    width: 90px;
+    height: auto;
+}
+
+.local-rucksack-empty {
+    padding: 1rem;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 0.5rem;
+    color: #856404;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: #fff;
+    }
+
+    .local-rucksack-actions,
+    .local-rucksack-user-selector,
+    .local-rucksack-header .btn,
+    #nav-drawer,
+    #page-header,
+    #page-footer,
+    .drawer-toggle,
+    .breadcrumb,
+    .toast-wrapper,
+    .action-menu,
+    .format-tiles .course-section,
+    .block-region,
+    .secondary-navigation {
+        display: none !important;
+    }
+
+    #page {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #page-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .local-rucksack-container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .local-rucksack-badge-table td {
+        border: 1px solid #ccc;
+    }
+
+    .local-rucksack-badge-row {
+        width: 48%;
+        margin-right: 2%;
+        box-shadow: none;
+    }
+
+    .local-rucksack-badge-row:nth-child(2n) {
+        margin-right: 0;
+    }
+
+    .local-rucksack-framework {
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    a {
+        text-decoration: none;
+        color: #000;
+    }
+
+    a[href]:after {
+        content: none;
+    }
+}
