@@ -26,7 +26,7 @@ require(__DIR__ . '/../../config.php');
 
 require_login();
 
-$type = optional_param('type', 'main', PARAM_ALPHA);
+$type = optional_param('type', 'main', PARAM_ALPHANUMEXT);
 
 $files = [
     'main' => $CFG->dirroot . '/local/rucksack/templates/earned_badges.mustache',
