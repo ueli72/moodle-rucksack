@@ -28,6 +28,13 @@ class block_rucksack_edit_form extends block_edit_form {
         ]);
         $mform->addHelpButton('config_template', 'template', 'block_rucksack');
 
+        $mainurl = $CFG->wwwroot . '/blocks/rucksack/download_default_template.php?type=main';
+        $partialurl = $CFG->wwwroot . '/blocks/rucksack/download_default_template.php?type=badge_row';
+        $downloadlinks = html_writer::tag('strong', get_string('downloaddefaulttemplates', 'block_rucksack')) . ' ' .
+            html_writer::link($mainurl, 'earned_badges.mustache') . ' | ' .
+            html_writer::link($partialurl, 'badge_row.mustache');
+        $mform->addElement('static', 'template_downloads', '', $downloadlinks);
+
         // Prepare draft area with existing logo and template files.
         $context = context_system::instance();
         $draftitemid = file_get_unused_draft_itemid();
