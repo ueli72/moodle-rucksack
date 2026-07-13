@@ -60,7 +60,7 @@ class block_rucksack extends block_base {
 
         $this->content->text = html_writer::start_tag('div', ['class' => 'local-rucksack-block']);
 
-        // URL line: label + textbox + copy icon.
+        // URL label, textbox + copy icon.
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-url-line']);
         $this->content->text .= html_writer::tag('span', get_string('publicaddress', 'block_rucksack'), ['class' => 'local-rucksack-label']);
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-input-group']);
