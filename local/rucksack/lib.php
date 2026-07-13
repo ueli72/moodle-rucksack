@@ -172,3 +172,222 @@ function local_rucksack_format_description($text) {
 
     return implode("\n", $output);
 }
+
+/**
+ * Build a standalone HTML document with embedded CSS and images for PDF printing.
+ *
+ * @param string $bodyhtml
+ * @param string $username
+ * @return string
+ */
+function local_rucksack_make_pdf_html($bodyhtml, $username) {
+    global $CFG;
+
+    $css = '';
+    $cssfile = $CFG->dirroot . '/local/rucksack/styles.css';
+    if (file_exists($cssfile)) {
+        $css = file_get_contents($cssfile);
+    }
+
+    // Embed pluginfile images as base64.
+    $bodyhtml = preg_replace_callback(
+        '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i',
+        function ($matches) {
+            $src = $matches[1];
+            $datauri = local_rucksack_image_to_datauri($src);
+            if ($datauri) {
+                return str_replace($src, $datauri, $matches[0]);
+            }
+            return $matches[0];
+        },
+        $bodyhtml
+    );
+
+    return '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>' . s($username) . '</title>
+    <style>
+        ' . $css . '
+        @page { size: A4; margin: 0.5cm; }
+        .local-rucksack-actions { display: none !important; }
+    </style>
+</head>
+<body>
+    ' . $bodyhtml . '
+</body>
+</html>';
+}
+
+/**
+ * Convert an image URL to a data URI.
+ *
+ * Handles Moodle pluginfile badge images by reading them directly from the file storage.
+ *
+ * @param string $url
+ * @return string|false
+ */
+function local_rucksack_image_to_datauri($url) {
+    global $CFG;
+
+    if (strpos($url, 'data:') === 0) {
+        return $url;
+    }
+
+    // Try to read Moodle badge image directly from file storage.
+    if (preg_match('/pluginfile\.php\/[^\/]+\/badges\/badgeimage\/(\d+)\/f1/', $url, $matches)) {
+        $badgeid = (int)$matches[1];
+        $datauri = local_rucksack_badge_image_datauri($badgeid);
+        if ($datauri) {
+            return $datauri;
+        }
+    }
+
+    // Fallback: try to fetch via HTTP.
+    $fullurl = $url;
+    if (strpos($url, 'http') !== 0) {
+        $fullurl = $CFG->wwwroot . $url;
+    }
+
+    $content = @file_get_contents($fullurl);
+    if (!$content) {
+        return false;
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimetype = $finfo->buffer($content);
+    return 'data:' . $mimetype . ';base64,' . base64_encode($content);
+}
+
+/**
+ * Get a badge image as a data URI from the Moodle file storage.
+ *
+ * @param int $badgeid
+ * @return string|false
+ */
+function local_rucksack_badge_image_datauri($badgeid) {
+    try {
+        $badge = new \core_badges\badge($badgeid);
+        $context = $badge->get_context();
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'badges', 'badgeimage', $badgeid, 'sortorder', false);
+        foreach ($files as $file) {
+            if ($file->is_valid_image()) {
+                return 'data:' . $file->get_mimetype() . ';base64,' . base64_encode($file->get_content());
+            }
+        }
+    } catch (Exception $e) {
+        return false;
+    }
+    return false;
+}
+
+/**
+ * Generate a PDF file from HTML using headless Chrome.
+ *
+ * @param string $html
+ * @param stdClass $user
+ * @return string|false Path to generated PDF.
+ */
+function local_rucksack_generate_pdf($html, $user) {
+    global $CFG;
+
+    $tempdir = make_temp_directory('local_rucksack');
+    $base = 'rucksack_' . $user->id . '_' . time();
+    $htmlfile = $tempdir . '/' . $base . '.html';
+    $pdffile = $tempdir . '/' . $base . '.pdf';
+
+    file_put_contents($htmlfile, $html);
+
+    $logfile = $tempdir . '/' . $base . '.log';
+    $homedir = $tempdir . '/' . $base . '_home';
+    if (!file_exists($homedir)) {
+        mkdir($homedir, 0770, true);
+    }
+
+    $chrome = local_rucksack_find_chrome();
+    if (!$chrome) {
+        debugging('Rucksack PDF generation failed: no Chrome/Chromium binary found', DEBUG_DEVELOPER);
+        error_log('Rucksack PDF generation failed: no Chrome/Chromium binary found');
+        unlink($htmlfile);
+        local_rucksack_rrmdir($homedir);
+        return false;
+    }
+
+    $cmd = 'HOME=' . escapeshellarg($homedir)
+        . ' ' . escapeshellcmd($chrome)
+        . ' --headless --disable-gpu --no-sandbox --disable-dev-shm-usage'
+        . ' --disable-crashpad --disable-crash-reporter'
+        . ' --run-all-compositor-stages-before-draw --print-to-pdf-no-header'
+        . ' --print-to-pdf=' . escapeshellarg($pdffile)
+        . ' ' . escapeshellarg($htmlfile)
+        . ' > ' . escapeshellarg($logfile) . ' 2>&1';
+    $output = [];
+    $return = 0;
+    exec($cmd, $output, $return);
+
+    $log = file_exists($logfile) ? file_get_contents($logfile) : '';
+
+    unlink($htmlfile);
+    if (file_exists($logfile)) {
+        unlink($logfile);
+    }
+    if (file_exists($homedir)) {
+        local_rucksack_rrmdir($homedir);
+    }
+
+    if ($return !== 0 || !file_exists($pdffile)) {
+        $message = 'Rucksack PDF generation failed (exit ' . $return . '): ' . $log;
+        debugging($message, DEBUG_DEVELOPER);
+        error_log($message);
+        return false;
+    }
+
+    return $pdffile;
+}
+
+/**
+ * Find a Chrome/Chromium binary on the system.
+ *
+ * @return string|false
+ */
+function local_rucksack_find_chrome() {
+    $candidates = [
+        'google-chrome-stable',
+        'google-chrome',
+        'chromium-browser',
+        'chromium',
+    ];
+    foreach ($candidates as $candidate) {
+        $path = trim(shell_exec('which ' . escapeshellarg($candidate) . ' 2>/dev/null'));
+        if (!empty($path)) {
+            return $path;
+        }
+    }
+    return false;
+}
+
+/**
+ * Recursively remove a directory.
+ *
+ * @param string $dir
+ */
+function local_rucksack_rrmdir($dir) {
+    if (!file_exists($dir)) {
+        return;
+    }
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+        if ($object == '.' || $object == '..') {
+            continue;
+        }
+        $path = $dir . '/' . $object;
+        if (is_dir($path)) {
+            local_rucksack_rrmdir($path);
+        } else {
+            unlink($path);
+        }
+    }
+    rmdir($dir);
+}
