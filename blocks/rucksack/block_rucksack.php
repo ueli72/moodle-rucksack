@@ -58,12 +58,11 @@ class block_rucksack extends block_base {
         $viewurl = $CFG->wwwroot . '/local/rucksack/view.php?user=' . urlencode($userhash);
         $pdfurl = $CFG->wwwroot . '/local/rucksack/pdf.php?user=' . urlencode($userhash);
 
-        $this->content->text = html_writer::tag('p', get_string('publicaddress', 'block_rucksack'));
+        $this->content->text = html_writer::start_tag('div', ['class' => 'local-rucksack-block']);
 
-        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-block']);
-
-        // URL line with copy icon directly attached.
-        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-url-wrapper']);
+        // URL line: label + textbox + copy icon.
+        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-url-line']);
+        $this->content->text .= html_writer::tag('span', get_string('publicaddress', 'block_rucksack'), ['class' => 'local-rucksack-label']);
         $this->content->text .= html_writer::empty_tag('input', [
             'type' => 'text',
             'value' => $viewurl,
