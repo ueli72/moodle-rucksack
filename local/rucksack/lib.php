@@ -203,12 +203,16 @@ function local_rucksack_make_pdf_html($bodyhtml, $username) {
         $bodyhtml
     );
 
+    // Match the theme's default sans-serif font stack (Bootstrap 5) in the PDF.
+    $fontfamily = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+
     return '<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>' . s($username) . '</title>
     <style>
+        body { font-family: ' . $fontfamily . '; }
         ' . $css . '
         @page { size: A4; margin: 0.5cm; }
         .local-rucksack-actions { display: none !important; }
