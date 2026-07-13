@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Download the default rucksack template or its badge_row partial.
+ * Download the default rucksack template, its badge_row partial or the default CSS.
  *
  * @package    block_rucksack
  * @copyright  Ueli Leutwyler
@@ -31,6 +31,7 @@ $type = optional_param('type', 'main', PARAM_ALPHANUMEXT);
 $files = [
     'main' => $CFG->dirroot . '/local/rucksack/templates/earned_badges.mustache',
     'badge_row' => $CFG->dirroot . '/local/rucksack/templates/badge_row.mustache',
+    'css' => $CFG->dirroot . '/local/rucksack/styles.css',
 ];
 
 $path = $files[$type] ?? $files['main'];

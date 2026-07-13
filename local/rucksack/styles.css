@@ -1,5 +1,15 @@
-/* local_rucksack/styles.css */
+/* =================================================================
+   local/rucksack/styles.css
+   ------------------------------------------------------------------
+   Stylesheet for the public rucksack page (earned badges) and the
+   matching PDF output. The same CSS is used for both screen and print.
+   Base font size is inherited from the Moodle/Boost theme (usually
+   16 px), therefore all rem values are relative to that base.
+   ================================================================= */
 
+/* ------------------------------------------------------------------
+   Layout wrapper
+   ------------------------------------------------------------------ */
 .local-rucksack-container {
     max-width: 1000px;
     margin: 0 auto;
@@ -7,6 +17,9 @@
     font-family: inherit;
 }
 
+/* ------------------------------------------------------------------
+   Page header: user name + optional logo
+   ------------------------------------------------------------------ */
 .local-rucksack-header {
     display: flex;
     justify-content: space-between;
@@ -20,12 +33,14 @@
     flex: 1 1 auto;
 }
 
+/* Main heading: 1.4rem ~= 22.4px (base 16px); must stay the largest heading */
 .local-rucksack-header h1 {
     margin: 0 0 0.25rem;
-    font-size: 1.35rem;
+    font-size: 1.4rem !important;
     font-weight: 600;
 }
 
+/* Logo in the top-right corner of the public page */
 .local-rucksack-logo {
     flex: 0 0 auto;
     margin-left: 1rem;
@@ -40,11 +55,15 @@
     height: auto;
 }
 
+/* Subtitle (e.g. "Earned badges") under the user name */
 .local-rucksack-meta {
     color: #6c757d;
     margin: 0 0 0.75rem;
 }
 
+/* ------------------------------------------------------------------
+   Action buttons (Open page, PDF download) above the badge list
+   ------------------------------------------------------------------ */
 .local-rucksack-actions {
     display: flex;
     gap: 0.5rem;
@@ -55,6 +74,34 @@
     text-decoration: none;
 }
 
+/* Top bar above the title: user selector (trainer only) + action buttons on one row */
+.local-rucksack-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.local-rucksack-top-bar .local-rucksack-actions {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .local-rucksack-top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .local-rucksack-top-bar .local-rucksack-actions {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Competency hierarchy (frameworks and competencies)
+   ------------------------------------------------------------------ */
 .local-rucksack-tree,
 .local-rucksack-competencies {
     list-style: none;
@@ -77,9 +124,10 @@
     border-radius: 0;
 }
 
+/* Framework title: 1.25rem ~= 20px; larger than level-1 competency, smaller than h1 */
 .local-rucksack-framework-title {
-    margin: 0 0 0.5rem;
-    font-size: 1.15rem;
+    margin: 0 0 0.5rem !important;
+    font-size: 1.25rem !important;
     font-weight: 700;
 }
 
@@ -89,48 +137,61 @@
     border-left: none;
 }
 
-/* Decreasing font sizes by hierarchy level */
+/* ------------------------------------------------------------------
+   Competency titles: each level is smaller than its parent.
+   Level 1 = top competency under the framework, level 5 = deepest leaf.
+   All values are relative to the 16px base font size.
+   ------------------------------------------------------------------ */
+
+/* Level 1 (top-level competency / standalone competency): 1.15rem ~= 18.4px */
 .local-rucksack-competency > .local-rucksack-competency-title,
 .local-rucksack-competency.level-1 > .local-rucksack-competency-title {
-    font-size: 1.05rem !important;
+    font-size: 1.15rem !important;
     font-weight: 600 !important;
     margin: 0 0 0.35rem !important;
 }
 
+/* Level 2: 1.05rem ~= 16.8px */
 .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
 .local-rucksack-competency.level-2 > .local-rucksack-competency-title {
+    font-size: 1.05rem !important;
+}
+
+/* Level 3: 0.95rem ~= 15.2px */
+.local-rucksack-competency .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
+.local-rucksack-competency.level-3 > .local-rucksack-competency-title {
     font-size: 0.95rem !important;
 }
 
-.local-rucksack-competency .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
-.local-rucksack-competency.level-3 > .local-rucksack-competency-title {
-    font-size: 0.9rem !important;
-}
-
+/* Level 4: 0.85rem ~= 13.6px */
 .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
 .local-rucksack-competency.level-4 > .local-rucksack-competency-title {
     font-size: 0.85rem !important;
 }
 
+/* Level 5: 0.8rem ~= 12.8px */
 .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency .local-rucksack-competency > .local-rucksack-competency-title,
 .local-rucksack-competency.level-5 > .local-rucksack-competency-title {
     font-size: 0.8rem !important;
 }
 
+/* Competency description text: 0.85rem ~= 13.6px */
 .local-rucksack-competency-desc {
     margin: 0 0 0.5rem;
     color: #495057;
     font-size: 0.85rem;
 }
 
-/* Badge grid: 2 columns */
+/* ------------------------------------------------------------------
+   Badge grid: 2 columns on desktop, 1 column on mobile
+   ------------------------------------------------------------------ */
 .local-rucksack-badge-list {
     display: block;
 }
 
 .local-rucksack-badge-row {
     display: inline-flex;
-    align-items: stretch;
+    flex-direction: column;
     vertical-align: top;
     width: 48%;
     margin: 0 2% 0.5rem 0;
@@ -152,19 +213,38 @@
     }
 }
 
+/* Badge name: 1.1rem ~= 17.6px, full width on the first line */
+/* Uses !important to override theme h4/.h4 rules that set x-large and padding */
+.local-rucksack-badge-name {
+    width: 100%;
+    margin: 0 0 0.35rem;
+    padding: 0 !important;
+    font-size: 1.1rem !important;
+    font-weight: 600;
+}
+
+/* Second line: image left, description + date right */
+.local-rucksack-badge-body {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+/* Badge image column: 70px image + 10px right padding, container basis 80px */
 .local-rucksack-badge-image {
-    flex: 0 0 120px;
-    max-width: 120px;
+    flex: 0 0 80px;
+    max-width: 80px;
     padding-right: 10px;
 }
 
 .local-rucksack-badge-img {
-    width: 100%;
+    width: 70px;
     height: auto;
     display: block;
     border-radius: 0.25rem;
 }
 
+/* Badge text column with date pushed to bottom-right */
 .local-rucksack-badge-content {
     flex: 1 1 auto;
     min-width: 0;
@@ -172,16 +252,11 @@
     flex-direction: column;
 }
 
-.local-rucksack-badge-name {
-    margin: 0 0 0.25rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
+/* Badge description body: 0.6rem ~= 9.6px */
 .local-rucksack-badge-description {
     color: #333;
     line-height: 1.25;
-    font-size: 0.8rem;
+    font-size: 0.6rem;
 }
 
 .local-rucksack-badge-description p {
@@ -192,6 +267,7 @@
     margin-bottom: 0;
 }
 
+/* Custom bullet list inside badge descriptions */
 .local-rucksack-badge-description ul {
     list-style: none;
     padding-left: 0;
@@ -211,12 +287,14 @@
     top: 0;
 }
 
+/* Award date: same size as the description, 0.6rem ~= 9.6px */
 .local-rucksack-badge-date {
     margin: auto 0 0 auto;
     color: #6c757d;
-    font-size: 0.75rem;
+    font-size: 0.6rem;
 }
 
+/* Clearfix helpers for the grid */
 .local-rucksack-badge-grid {
     display: block;
 }
@@ -231,7 +309,9 @@
     clear: both;
 }
 
-/* PDF float layout */
+/* ------------------------------------------------------------------
+   PDF float layout (fallback used by some renderings)
+   ------------------------------------------------------------------ */
 .local-rucksack-badge-float {
     float: left;
     width: 48%;
@@ -253,7 +333,9 @@
     margin-right: 10px;
 }
 
-/* PDF table layout */
+/* ------------------------------------------------------------------
+   PDF table layout (used by the default PDF/HTML template)
+   ------------------------------------------------------------------ */
 .local-rucksack-badge-table {
     width: 100%;
     border-collapse: collapse;
@@ -288,6 +370,9 @@
     height: auto;
 }
 
+/* ------------------------------------------------------------------
+   Empty state (no badges earned)
+   ------------------------------------------------------------------ */
 .local-rucksack-empty {
     padding: 1rem;
     background: #fff3cd;
@@ -296,12 +381,15 @@
     color: #856404;
 }
 
-/* Print styles */
+/* ------------------------------------------------------------------
+   Print styles for the browser print dialog (also applies to PDF)
+   ------------------------------------------------------------------ */
 @media print {
     body {
         background: #fff;
     }
 
+    /* Hide Moodle chrome and interactive elements */
     .local-rucksack-actions,
     .local-rucksack-user-selector,
     .local-rucksack-header .btn,

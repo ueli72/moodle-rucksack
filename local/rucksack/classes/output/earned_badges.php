@@ -82,6 +82,7 @@ class earned_badges implements renderable, templatable {
         $data->date = date('d.m.Y');
         $data->wwwroot = $CFG->wwwroot;
         $data->userhash = local_rucksack_encrypt($this->userid);
+        $data->title = local_rucksack_get_title();
 
         $logourl = local_rucksack_get_logo_url();
         if ($logourl) {

@@ -64,6 +64,10 @@ $PAGE->set_url('/local/rucksack/view.php', ['user' => $userhash]);
 $PAGE->set_heading(get_string('pluginname', 'local_rucksack'));
 $PAGE->set_title(get_string('badgesfor', 'local_rucksack', fullname($targetuser)));
 $PAGE->requires->css('/local/rucksack/styles.css');
+$customcssurl = local_rucksack_get_custom_css_url();
+if ($customcssurl) {
+    $PAGE->requires->css($customcssurl);
+}
 
 $renderer = $PAGE->get_renderer('local_rucksack');
 $renderable = new \local_rucksack\output\earned_badges($userid);
@@ -91,6 +95,14 @@ if ($canmanage) {
 
 $content = $renderer->render_earned_badges_data($data);
 
+// Build action buttons (PDF download + browser print) for the screen view.
+$actionshtml = '<div class="local-rucksack-actions">';
+$actionshtml .= '<a href="' . $data->pdfurl . '" class="btn btn-secondary" target="_blank">' . get_string('downloadpdf', 'local_rucksack') . '</a>';
+$actionshtml .= '<button type="button" class="btn btn-secondary" onclick="window.print()">' . get_string('print', 'local_rucksack') . '</button>';
+$actionshtml .= '</div>';
+
+// Top bar: user selector (trainer only) and action buttons on one row above the title.
+$topbarhtml = '<div class="local-rucksack-top-bar">';
 if ($canmanage) {
     $selectorhtml = '<form method="get" action="' . $CFG->wwwroot . '/local/rucksack/view.php" class="local-rucksack-user-selector form-inline">';
     $selectorhtml .= '<div class="form-group">';
@@ -104,8 +116,12 @@ if ($canmanage) {
     $selectorhtml .= '</div>';
     $selectorhtml .= '<button type="submit" class="btn btn-primary">' . get_string('show') . '</button>';
     $selectorhtml .= '</form>';
-    $content = $selectorhtml . $content;
+    $topbarhtml .= $selectorhtml;
 }
+$topbarhtml .= $actionshtml;
+$topbarhtml .= '</div>';
+
+$content = $topbarhtml . $content;
 
 echo $OUTPUT->header();
 echo $content;

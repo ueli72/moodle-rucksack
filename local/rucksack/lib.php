@@ -102,7 +102,71 @@ function local_rucksack_get_custom_badge_row_partial() {
 }
 
 /**
- * Returns the configured encryption key.
+ * Return the custom CSS content configured in the block.
+ *
+ * @return string|false
+ */
+function local_rucksack_get_custom_css() {
+    $fs = get_file_storage();
+    $context = context_system::instance();
+    $files = $fs->get_area_files($context->id, 'block_rucksack', 'customcss', 0, 'sortorder', false);
+
+    foreach ($files as $file) {
+        if (!$file->is_directory()) {
+            return $file->get_content();
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Return the custom CSS URL for the public rucksack page.
+ *
+ * @return moodle_url|false
+ */
+function local_rucksack_get_custom_css_url() {
+    $fs = get_file_storage();
+    $context = context_system::instance();
+    $files = $fs->get_area_files($context->id, 'block_rucksack', 'customcss', 0, 'sortorder', false);
+
+    foreach ($files as $file) {
+        if (!$file->is_directory()) {
+            return moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename()
+            );
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Return the custom page title configured in the rucksack block.
+ *
+ * Falls back to the default language string 'badgesfor' if no title is set.
+ *
+ * @return string
+ */
+function local_rucksack_get_title() {
+    global $DB;
+    $records = $DB->get_records('block_instances', ['blockname' => 'rucksack'], 'id');
+    foreach ($records as $record) {
+        $config = unserialize(base64_decode($record->configdata));
+        if (!empty($config->title)) {
+            return $config->title;
+        }
+    }
+    return get_string('badgesfor', 'local_rucksack');
+}
+
+/**
+ * Return the configured encryption key.
  *
  * @return string
  */
@@ -264,6 +328,11 @@ function local_rucksack_make_pdf_html($bodyhtml, $username) {
     $cssfile = $CFG->dirroot . '/local/rucksack/styles.css';
     if (file_exists($cssfile)) {
         $css = file_get_contents($cssfile);
+    }
+
+    $customcss = local_rucksack_get_custom_css();
+    if ($customcss !== false) {
+        $css .= "\n\n/* Custom CSS */\n" . $customcss;
     }
 
     // Embed pluginfile images as base64.
