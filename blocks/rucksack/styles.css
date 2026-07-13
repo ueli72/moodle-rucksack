@@ -4,25 +4,26 @@
     gap: 1rem;
 }
 
-.block_rucksack .local-rucksack-url-line {
+.block_rucksack .local-rucksack-main {
     flex: 1 1 auto;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 0.5rem;
-}
-
-.block_rucksack .local-rucksack-url-line input.form-control {
-    flex: 1 1 auto;
     min-width: 0;
 }
 
-.block_rucksack .local-rucksack-actions {
+.block_rucksack .local-rucksack-url-wrapper {
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
 
-.block_rucksack .local-rucksack-actions .btn-icon {
+.block_rucksack .local-rucksack-url-wrapper input.form-control {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.block_rucksack .local-rucksack-url-wrapper .btn-copy {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -30,20 +31,52 @@
     border: none;
     background: transparent;
     cursor: pointer;
+    flex: 0 0 auto;
 }
 
-.block_rucksack .local-rucksack-actions .btn-icon:hover,
-.block_rucksack .local-rucksack-actions .btn-icon:focus {
+.block_rucksack .local-rucksack-url-wrapper .btn-copy:hover,
+.block_rucksack .local-rucksack-url-wrapper .btn-copy:focus {
     background: #e9ecef;
     border-radius: 0.25rem;
 }
 
-.block_rucksack .local-rucksack-actions .btn-icon img,
-.block_rucksack .local-rucksack-actions .btn-icon .icon {
-    width: 24px;
-    height: 24px;
-    font-size: 24px;
-    line-height: 24px;
+.block_rucksack .local-rucksack-url-wrapper .btn-copy img,
+.block_rucksack .local-rucksack-url-wrapper .btn-copy .icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+}
+
+.block_rucksack .local-rucksack-big-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.block_rucksack .local-rucksack-big-actions .btn-big {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.65rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.block_rucksack .local-rucksack-big-actions .btn-big:hover,
+.block_rucksack .local-rucksack-big-actions .btn-big:focus {
+    background: #e9ecef;
+    border-radius: 0.25rem;
+}
+
+.block_rucksack .local-rucksack-big-actions .btn-big img,
+.block_rucksack .local-rucksack-big-actions .btn-big .icon {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    line-height: 32px;
 }
 
 .block_rucksack .local-rucksack-qr {

@@ -62,8 +62,9 @@ class block_rucksack extends block_base {
 
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-block']);
 
-        // URL + action icons.
-        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-url-line']);
+        // URL line with copy icon directly attached.
+        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-main']);
+        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-url-wrapper']);
         $this->content->text .= html_writer::empty_tag('input', [
             'type' => 'text',
             'value' => $viewurl,
@@ -71,23 +72,26 @@ class block_rucksack extends block_base {
             'class' => 'form-control',
             'readonly' => 'readonly',
         ]);
-        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-actions']);
         $this->content->text .= html_writer::tag('button', $OUTPUT->pix_icon('t/copy', get_string('copytoclipboard', 'block_rucksack')), [
             'onclick' => 'copyQRCode()',
-            'class' => 'btn btn-icon',
+            'class' => 'btn btn-copy',
             'type' => 'button',
             'title' => get_string('copytoclipboard', 'block_rucksack'),
         ]);
+        $this->content->text .= html_writer::end_tag('div');
+
+        // Larger open / PDF action icons.
+        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-big-actions']);
         $this->content->text .= html_writer::tag('button', $OUTPUT->pix_icon('i/open', get_string('open', 'block_rucksack')), [
             'onclick' => "window.open('" . $viewurl . "','_blank')",
-            'class' => 'btn btn-icon',
+            'class' => 'btn btn-big',
             'type' => 'button',
             'title' => get_string('open', 'block_rucksack'),
         ]);
         $this->content->text .= html_writer::tag('a', $OUTPUT->pix_icon('f/pdf', get_string('downloadpdf', 'block_rucksack')), [
             'href' => $pdfurl,
             'target' => '_blank',
-            'class' => 'btn btn-icon',
+            'class' => 'btn btn-big',
             'title' => get_string('downloadpdf', 'block_rucksack'),
         ]);
         $this->content->text .= html_writer::end_tag('div');
