@@ -63,7 +63,6 @@ class block_rucksack extends block_base {
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-block']);
 
         // URL line with copy icon directly attached.
-        $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-main']);
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-url-wrapper']);
         $this->content->text .= html_writer::empty_tag('input', [
             'type' => 'text',
@@ -80,7 +79,7 @@ class block_rucksack extends block_base {
         ]);
         $this->content->text .= html_writer::end_tag('div');
 
-        // Larger open / PDF action icons.
+        // Open / PDF action icons.
         $this->content->text .= html_writer::start_tag('div', ['class' => 'local-rucksack-big-actions']);
         $this->content->text .= html_writer::tag('button', $OUTPUT->pix_icon('i/open', get_string('open', 'block_rucksack')), [
             'onclick' => "window.open('" . $viewurl . "','_blank')",
@@ -94,7 +93,6 @@ class block_rucksack extends block_base {
             'class' => 'btn btn-big',
             'title' => get_string('downloadpdf', 'block_rucksack'),
         ]);
-        $this->content->text .= html_writer::end_tag('div');
         $this->content->text .= html_writer::end_tag('div');
 
         // QR code.
