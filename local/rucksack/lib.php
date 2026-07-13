@@ -25,6 +25,45 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Return the configured logo URL for the public rucksack page.
+ *
+ * @return moodle_url|false
+ */
+function local_rucksack_get_logo_url() {
+    $fs = get_file_storage();
+    $context = context_system::instance();
+    $files = $fs->get_area_files($context->id, 'block_rucksack', 'logo', 0, 'sortorder', false);
+
+    foreach ($files as $file) {
+        if ($file->is_valid_image()) {
+            return moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename()
+            );
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Return the configured logo as a data URI for PDF embedding.
+ *
+ * @return string|false
+ */
+function local_rucksack_get_logo_datauri() {
+    $url = local_rucksack_get_logo_url();
+    if (!$url) {
+        return false;
+    }
+    return local_rucksack_image_to_datauri($url->out());
+}
+
+/**
  * Returns the configured encryption key.
  *
  * @return string

@@ -1,13 +1,20 @@
 <div class="local-rucksack-container">
     <header class="local-rucksack-header">
-        <h1>{{#str}}badgesfor, local_rucksack{{/str}} {{username}}</h1>
-        <p class="local-rucksack-meta">{{#str}}issuedon, local_rucksack{{/str}} {{date}}</p>
-        {{#showpdfbutton}}
-        <div class="local-rucksack-actions">
-            <a href="{{pdfurl}}" class="btn btn-secondary" target="_blank">{{#str}}downloadpdf, local_rucksack{{/str}}</a>
-            <button type="button" class="btn btn-secondary" onclick="window.print()">{{#str}}print, local_rucksack{{/str}}</button>
+        <div class="local-rucksack-header-content">
+            <h1>{{#str}}badgesfor, local_rucksack{{/str}} {{username}}</h1>
+            <p class="local-rucksack-meta">{{#str}}issuedon, local_rucksack{{/str}} {{date}}</p>
+            {{#showpdfbutton}}
+            <div class="local-rucksack-actions">
+                <a href="{{pdfurl}}" class="btn btn-secondary" target="_blank">{{#str}}downloadpdf, local_rucksack{{/str}}</a>
+                <button type="button" class="btn btn-secondary" onclick="window.print()">{{#str}}print, local_rucksack{{/str}}</button>
+            </div>
+            {{/showpdfbutton}}
         </div>
-        {{/showpdfbutton}}
+        {{#logourl}}
+        <div class="local-rucksack-logo">
+            <img src="{{logourl}}" alt="{{#str}}pluginname, block_rucksack{{/str}}">
+        </div>
+        {{/logourl}}
     </header>
 
     {{#nodata}}
