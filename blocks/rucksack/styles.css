@@ -82,10 +82,12 @@
 
 .block_rucksack .local-rucksack-big-actions .btn-big img,
 .block_rucksack .local-rucksack-big-actions .btn-big .icon {
-    width: 32px;
-    height: 32px;
-    font-size: 32px;
-    line-height: 32px;
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+    line-height: 28px;
+    min-width: 28px;
+    min-height: 28px;
 }
 
 .block_rucksack .local-rucksack-qr {
