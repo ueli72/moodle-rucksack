@@ -214,6 +214,7 @@ class block_rucksack_edit_form extends block_edit_form {
         $tokplaceholder = $token ? s($token) : '42_xxx';
         $example_single = $exampleurl . '?token=' . $tokplaceholder . '&users[]=j26a.misimi';
         $example_multi  = $exampleurl . '?token=' . $tokplaceholder . '&users[]=j26a.misimi&users[]=j26b.mustermann';
+        $example_cohort = $exampleurl . '?token=' . $tokplaceholder . '&cohort=int';
         $example_filename = $exampleurl . '?token=' . $tokplaceholder . '&users[]=j26a.misimi&users[]=j26b.mustermann&filename=meine_klasse';
         $example_curl = 'curl -H "Authorization: Bearer ' . $tokplaceholder . '" "' . $exampleurl . '?users[]=j26a.misimi"';
 
@@ -223,6 +224,8 @@ class block_rucksack_edit_form extends block_edit_form {
             . '<code>' . $example_single . '</code><br><br>'
             . '<strong>' . get_string('example_multi', 'block_rucksack') . '</strong><br>'
             . '<code>' . $example_multi . '</code><br><br>'
+            . '<strong>' . get_string('example_cohort', 'block_rucksack') . '</strong><br>'
+            . '<code>' . $example_cohort . '</code><br><br>'
             . '<strong>' . get_string('example_filename', 'block_rucksack') . '</strong><br>'
             . '<code>' . $example_filename . '</code><br><br>'
             . '<strong>' . get_string('example_header', 'block_rucksack') . '</strong><br>'

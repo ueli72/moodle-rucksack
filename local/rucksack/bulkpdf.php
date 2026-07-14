@@ -80,7 +80,41 @@ if (!is_object($config) || empty($config->apitoken) || $config->apitoken !== $ha
 // Read request parameters
 // ------------------------------------------------------------------
 $users    = optional_param_array('users', [], PARAM_TEXT);
+$cohort   = optional_param('cohort', '', PARAM_TEXT);
 $filename = optional_param('filename', '', PARAM_FILE);
+
+// Resolve cohort to users if provided.
+if (!empty($cohort)) {
+    // Try name first, then idnumber.
+    $cohortrecord = $DB->get_record('cohort', ['name' => $cohort]);
+    if (!$cohortrecord) {
+        $cohortrecord = $DB->get_record('cohort', ['idnumber' => $cohort]);
+    }
+    if (!$cohortrecord) {
+        header('HTTP/1.1 400 Bad Request');
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => get_string('cohortnotfound', 'local_rucksack', $cohort)]);
+        die();
+    }
+
+    $members = $DB->get_records_sql(
+        "SELECT u.username
+           FROM {cohort_members} cm
+           JOIN {user} u ON u.id = cm.userid
+          WHERE cm.cohortid = ?
+            AND u.deleted = 0
+            AND u.suspended = 0",
+        [$cohortrecord->id]
+    );
+    foreach ($members as $m) {
+        $users[] = $m->username;
+    }
+
+    // Default ZIP name based on cohort if no explicit filename given.
+    if (empty($filename)) {
+        $filename = 'Kompetenznachweise_' . $cohort;
+    }
+}
 
 if (empty($users)) {
     header('HTTP/1.1 400 Bad Request');

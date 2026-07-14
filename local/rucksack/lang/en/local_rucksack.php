@@ -59,3 +59,4 @@ $string['assignedusers'] = 'Zugeordnete User';
 $string['invalidtoken'] = 'Ungültiges oder fehlendes Token';
 $string['nobulkusers'] = 'Keine User angegeben';
 $string['bulkpdferror'] = 'PDFs konnten nicht erzeugt werden';
+$string['cohortnotfound'] = 'Cohort "{$a}" nicht gefunden';
