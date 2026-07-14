@@ -146,6 +146,189 @@ function local_rucksack_get_custom_css_url() {
     return false;
 }
 
+// ============================================================
+// Template set management
+// ============================================================
+
+/**
+ * Return the default (plugin file) template content.
+ *
+ * @param string $file default template filename
+ * @return string
+ */
+function local_rucksack_get_default_template_content($file) {
+    global $CFG;
+    $path = $CFG->dirroot . '/local/rucksack/' . $file;
+    return file_exists($path) ? file_get_contents($path) : '';
+}
+
+/**
+ * Return all template sets, including the synthetic Standard set.
+ *
+ * The read-only Standard set is always added with id 0; any DB records marked
+ * as standard are ignored so only custom sets appear in the list.
+ *
+ * @return array of objects with id, name, isstandard
+ */
+function local_rucksack_get_templatesets() {
+    global $DB;
+    $sets = $DB->get_records_select(
+        'local_rucksack_templateset',
+        'isstandard = 0',
+        null,
+        'name ASC',
+        'id, name, isstandard, timemodified'
+    );
+    $standard = new stdClass();
+    $standard->id = 0;
+    $standard->name = get_string('standardset', 'block_rucksack');
+    $standard->isstandard = 1;
+    $standard->timemodified = 0;
+    return array_merge([0 => $standard], $sets);
+}
+
+/**
+ * Return a single template set.
+ *
+ * @param int $id 0 = Standard (plugin files), >0 = DB record
+ * @return stdClass|false
+ */
+function local_rucksack_get_templateset($id) {
+    global $DB;
+    $id = (int)$id;
+    if ($id === 0) {
+        $set = new stdClass();
+        $set->id = 0;
+        $set->name = get_string('standardset', 'block_rucksack');
+        $set->templatetext = local_rucksack_get_default_template_content('templates/earned_badges.mustache');
+        $set->partialtext = local_rucksack_get_default_template_content('templates/badge_row.mustache');
+        $set->csstext = local_rucksack_get_default_template_content('styles.css');
+        $set->isstandard = 1;
+        return $set;
+    }
+    return $DB->get_record('local_rucksack_templateset', ['id' => $id]);
+}
+
+/**
+ * Return the main template content for a given set.
+ *
+ * @param int $id
+ * @return string
+ */
+function local_rucksack_get_template($id) {
+    $set = local_rucksack_get_templateset($id);
+    return $set ? $set->templatetext : local_rucksack_get_default_template_content('templates/earned_badges.mustache');
+}
+
+/**
+ * Return the badge row partial content for a given set.
+ *
+ * @param int $id
+ * @return string
+ */
+function local_rucksack_get_partial($id) {
+    $set = local_rucksack_get_templateset($id);
+    return $set ? $set->partialtext : local_rucksack_get_default_template_content('templates/badge_row.mustache');
+}
+
+/**
+ * Return the CSS content for a given set.
+ *
+ * @param int $id
+ * @return string
+ */
+function local_rucksack_get_css($id) {
+    $set = local_rucksack_get_templateset($id);
+    return $set ? $set->csstext : local_rucksack_get_default_template_content('styles.css');
+}
+
+/**
+ * Return a URL to the CSS endpoint for a given template set.
+ *
+ * @param int $id
+ * @return moodle_url
+ */
+function local_rucksack_get_set_css_url($id) {
+    global $CFG;
+    return new moodle_url($CFG->wwwroot . '/local/rucksack/css.php', ['set' => (int)$id]);
+}
+
+/**
+ * Save an existing template set.
+ *
+ * @param int $id
+ * @param string $name
+ * @param string $templatetext
+ * @param string $partialtext
+ * @param string $csstext
+ * @return bool
+ */
+function local_rucksack_save_templateset($id, $name, $templatetext, $partialtext, $csstext) {
+    global $DB;
+    $id = (int)$id;
+    if ($id === 0) {
+        return false;
+    }
+    $record = $DB->get_record('local_rucksack_templateset', ['id' => $id]);
+    if (!$record) {
+        return false;
+    }
+    $record->name = trim($name);
+    $record->templatetext = $templatetext;
+    $record->partialtext = $partialtext;
+    $record->csstext = $csstext;
+    $record->timemodified = time();
+    $DB->update_record('local_rucksack_templateset', $record);
+    return true;
+}
+
+/**
+ * Create a new template set.
+ *
+ * @param string $name
+ * @param string $templatetext
+ * @param string $partialtext
+ * @param string $csstext
+ * @return int|false new set id
+ */
+function local_rucksack_create_templateset($name, $templatetext, $partialtext, $csstext) {
+    global $DB;
+    $name = trim($name);
+    if ($name === '') {
+        return false;
+    }
+    $now = time();
+    $record = new stdClass();
+    $record->name = $name;
+    $record->templatetext = $templatetext;
+    $record->partialtext = $partialtext;
+    $record->csstext = $csstext;
+    $record->isstandard = 0;
+    $record->timecreated = $now;
+    $record->timemodified = $now;
+    return $DB->insert_record('local_rucksack_templateset', $record);
+}
+
+/**
+ * Delete a template set.
+ *
+ * @param int $id
+ * @return bool
+ */
+function local_rucksack_delete_templateset($id) {
+    global $DB;
+    $id = (int)$id;
+    if ($id === 0) {
+        return false;
+    }
+    $record = $DB->get_record('local_rucksack_templateset', ['id' => $id, 'isstandard' => 0]);
+    if (!$record) {
+        return false;
+    }
+    $DB->delete_records('local_rucksack_templateset', ['id' => $id]);
+    return true;
+}
+
 /**
  * Return the custom page title configured in the rucksack block.
  *
@@ -175,25 +358,30 @@ function local_rucksack_get_key() {
 }
 
 /**
- * Encrypt a user id for use in public URLs.
+ * Encrypt a user id and optional template set id for use in public URLs.
  *
- * @param string|int $plaintext
+ * @param string|int $userid
+ * @param int $setid
  * @return string
  */
-function local_rucksack_encrypt($plaintext) {
+function local_rucksack_encrypt($userid, $setid = 0) {
     $key = local_rucksack_get_key();
     $method = 'aes-256-cbc';
     $bkey = hex2bin($key);
     $iv = hex2bin(md5(microtime() . rand()));
-    $data = openssl_encrypt($plaintext, $method, $bkey, OPENSSL_RAW_DATA, $iv);
+    $payload = json_encode(['u' => (int)$userid, 's' => (int)$setid]);
+    $data = openssl_encrypt($payload, $method, $bkey, OPENSSL_RAW_DATA, $iv);
     return base64_encode($iv . $data);
 }
 
 /**
- * Decrypt a user id from a public URL.
+ * Decrypt a user id and template set id from a public URL.
+ *
+ * Backwards compatible: old hashes that only contain a raw user id are
+ * returned with set id 0.
  *
  * @param string $encryptedtext
- * @return string|false
+ * @return array|false ['u' => userid, 's' => setid]
  */
 function local_rucksack_decrypt($encryptedtext) {
     $key = local_rucksack_get_key();
@@ -202,7 +390,25 @@ function local_rucksack_decrypt($encryptedtext) {
     $decoded = base64_decode(str_replace(' ', '+', $encryptedtext));
     $iv = substr($decoded, 0, 16);
     $data = substr($decoded, 16);
-    return openssl_decrypt($data, $method, $bkey, OPENSSL_RAW_DATA, $iv);
+    $payload = openssl_decrypt($data, $method, $bkey, OPENSSL_RAW_DATA, $iv);
+    if ($payload === false) {
+        return false;
+    }
+    $trimmed = trim($payload);
+    if ($trimmed !== '' && $trimmed[0] === '{') {
+        $decoded = json_decode($trimmed, true);
+        if (is_array($decoded) && isset($decoded['u'])) {
+            return [
+                'u' => (int)$decoded['u'],
+                's' => (int)($decoded['s'] ?? 0),
+            ];
+        }
+    }
+    // Backwards compatibility: raw user id.
+    return [
+        'u' => (int)$trimmed,
+        's' => 0,
+    ];
 }
 
 /**
@@ -319,17 +525,15 @@ function local_rucksack_format_description($text) {
  *
  * @param string $bodyhtml
  * @param string $username
+ * @param int $setid
  * @return string
  */
-function local_rucksack_make_pdf_html($bodyhtml, $username) {
+function local_rucksack_make_pdf_html($bodyhtml, $username, $setid = 0) {
     global $CFG;
 
-    $css = '';
-    $cssfile = $CFG->dirroot . '/local/rucksack/styles.css';
-    if (file_exists($cssfile)) {
-        $css = file_get_contents($cssfile);
-    }
+    $css = local_rucksack_get_css($setid);
 
+    // Keep the legacy file-area custom CSS as an optional extra if present.
     $customcss = local_rucksack_get_custom_css();
     if ($customcss !== false) {
         $css .= "\n\n/* Custom CSS */\n" . $customcss;

@@ -58,7 +58,7 @@
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="User ID" PREVIOUS="id" NEXT="configid"/>
                 <FIELD NAME="configid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Assigned configuration set" PREVIOUS="userid" NEXT="timecreated"/>
-                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Assignment timestamp" PREVIOUS="configid" NEXT="timemodified"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Creation timestamp" PREVIOUS="configid" NEXT="timemodified"/>
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Last modification timestamp" PREVIOUS="timecreated"/>
             </FIELDS>
             <KEYS>
@@ -67,6 +67,25 @@
             <INDEXES>
                 <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
                 <INDEX NAME="userconfig" UNIQUE="true" FIELDS="userid, configid"/>
+            </INDEXES>
+        </TABLE>
+
+        <TABLE NAME="local_rucksack_templateset" COMMENT="Template sets for public rucksack pages">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Template set name" PREVIOUS="id" NEXT="templatetext"/>
+                <FIELD NAME="templatetext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Main earned_badges template content" PREVIOUS="name" NEXT="partialtext"/>
+                <FIELD NAME="partialtext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="badge_row partial template content" PREVIOUS="templatetext" NEXT="csstext"/>
+                <FIELD NAME="csstext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Custom CSS content" PREVIOUS="partialtext" NEXT="isstandard"/>
+                <FIELD NAME="isstandard" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" COMMENT="Whether this is the read-only standard set" PREVIOUS="csstext" NEXT="timecreated"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Creation timestamp" PREVIOUS="isstandard" NEXT="timemodified"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Last modification timestamp" PREVIOUS="timecreated"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="isstandard" UNIQUE="false" FIELDS="isstandard"/>
             </INDEXES>
         </TABLE>
     </TABLES>

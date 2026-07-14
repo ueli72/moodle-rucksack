@@ -54,7 +54,8 @@ class block_rucksack extends block_base {
         $this->content->icons = [];
         $this->content->footer = '';
 
-        $userhash = local_rucksack_encrypt($USER->id);
+        $setid = !empty($this->config->templateset) ? (int)$this->config->templateset : 0;
+        $userhash = local_rucksack_encrypt($USER->id, $setid);
         $viewurl = $CFG->wwwroot . '/local/rucksack/view.php?user=' . urlencode($userhash);
         $pdfurl = $CFG->wwwroot . '/local/rucksack/pdf.php?user=' . urlencode($userhash);
 
@@ -147,42 +148,6 @@ class block_rucksack extends block_base {
         return true;
     }
 
-    /**
-     * Save the content of a textarea as a file in the given block_rucksack file area.
-     *
-     * Existing files in the area are replaced. If the content is empty the area
-     * is cleared so the default template/CSS is used instead.
-     *
-     * @param string $content
-     * @param string $filearea
-     * @param string $filename
-     */
-    protected function save_textarea_to_filearea($content, $filearea, $filename) {
-        $fs = get_file_storage();
-        $context = context_system::instance();
-
-        // Remove existing files in the area.
-        $files = $fs->get_area_files($context->id, 'block_rucksack', $filearea, 0, 'itemid, filepath, filename', false);
-        foreach ($files as $file) {
-            $file->delete();
-        }
-
-        $content = trim($content);
-        if ($content === '') {
-            return;
-        }
-
-        $fileinfo = [
-            'contextid' => $context->id,
-            'component' => 'block_rucksack',
-            'filearea' => $filearea,
-            'itemid' => 0,
-            'filepath' => '/',
-            'filename' => $filename,
-        ];
-        $fs->create_file_from_string($fileinfo, $content);
-    }
-
     public function instance_config_save($data, $nolongerused = false) {
         if (!empty($data->logo)) {
             file_save_draft_area_files(
@@ -194,12 +159,8 @@ class block_rucksack extends block_base {
             );
         }
 
-        // Save editable template/CSS textareas to the file areas.
-        $this->save_textarea_to_filearea($data->template ?? '', 'template', 'earned_badges.mustache');
-        $this->save_textarea_to_filearea($data->template_badge_row ?? '', 'template_partial', 'badge_row.mustache');
-        $this->save_textarea_to_filearea($data->customcss ?? '', 'customcss', 'styles.css');
-
         // Do not store the large template strings in the block instance config.
+        // Template sets are managed via the separate AJAX endpoints.
         unset($data->template);
         unset($data->template_badge_row);
         unset($data->customcss);

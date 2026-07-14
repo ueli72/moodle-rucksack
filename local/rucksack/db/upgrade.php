@@ -92,5 +92,31 @@ function xmldb_local_rucksack_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026071300, 'local', 'rucksack');
     }
 
+    if ($oldversion < 2026071400) {
+
+        // Define table local_rucksack_templateset.
+        $table = new xmldb_table('local_rucksack_templateset');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('templatetext', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('partialtext', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('csstext', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('isstandard', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('isstandard', XMLDB_INDEX_NOTUNIQUE, ['isstandard']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Remove any legacy standard set records. The Standard set is handled
+        // synthetically by local_rucksack_get_templateset(0) and always loads
+        // directly from the plugin files.
+        $DB->delete_records('local_rucksack_templateset', ['isstandard' => 1]);
+
+        upgrade_plugin_savepoint(true, 2026071400, 'local', 'rucksack');
+    }
+
     return true;
 }

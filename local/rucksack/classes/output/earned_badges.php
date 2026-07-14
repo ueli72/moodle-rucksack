@@ -37,6 +37,9 @@ class earned_badges implements renderable, templatable {
     /** @var int */
     protected $userid;
 
+    /** @var int */
+    protected $setid;
+
     /** @var stdClass|null */
     protected $config;
 
@@ -50,9 +53,11 @@ class earned_badges implements renderable, templatable {
      * Constructor.
      *
      * @param int $userid
+     * @param int $setid
      */
-    public function __construct($userid) {
+    public function __construct($userid, $setid = 0) {
         $this->userid = (int)$userid;
+        $this->setid = (int)$setid;
         $this->config = local_rucksack_get_user_config($this->userid);
         if ($this->config) {
             $this->configbadges = local_rucksack_get_config_badges($this->config->id);
@@ -81,7 +86,7 @@ class earned_badges implements renderable, templatable {
         }
         $data->date = date('d.m.Y');
         $data->wwwroot = $CFG->wwwroot;
-        $data->userhash = local_rucksack_encrypt($this->userid);
+        $data->userhash = local_rucksack_encrypt($this->userid, $this->setid);
         $data->title = local_rucksack_get_title();
 
         $logourl = local_rucksack_get_logo_url();
@@ -156,6 +161,7 @@ class earned_badges implements renderable, templatable {
         $data->haspdf = true;
         $data->pdfurl = $CFG->wwwroot . '/local/rucksack/pdf.php?user=' . urlencode($data->userhash);
         $data->showpdfbutton = true;
+        $data->setid = $this->setid;
 
         // Prepare plan-level flattened display used by both screen and PDF.
         $plans = [];

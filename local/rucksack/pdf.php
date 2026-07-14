@@ -32,7 +32,9 @@ global $CFG, $PAGE, $OUTPUT, $DB;
 $context = context_system::instance();
 
 $userhash = required_param('user', PARAM_TEXT);
-$userid = (int)local_rucksack_decrypt($userhash);
+$payload = local_rucksack_decrypt($userhash);
+$userid = is_array($payload) ? $payload['u'] : 0;
+$setid = is_array($payload) ? $payload['s'] : 0;
 
 if ($userid <= 0) {
     throw new moodle_exception('invaliduser', 'local_rucksack');
@@ -48,16 +50,16 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_url('/local/rucksack/pdf.php', ['user' => $userhash]);
 
 $renderer = $PAGE->get_renderer('local_rucksack');
-$renderable = new \local_rucksack\output\earned_badges($userid);
+$renderable = new \local_rucksack\output\earned_badges($userid, $setid);
 $data = $renderable->export_for_pdf($renderer);
 
 // PDF uses the same template as the screen, but hides the action buttons.
 $data->showpdfbutton = false;
 
-$html = $renderer->render_earned_badges_data($data);
+$html = $renderer->render_earned_badges_data($data, $setid);
 
 // Convert to standalone HTML with embedded CSS and images.
-$html = local_rucksack_make_pdf_html($html, fullname($targetuser));
+$html = local_rucksack_make_pdf_html($html, fullname($targetuser), $setid);
 
 // Generate PDF.
 $pdfpath = local_rucksack_generate_pdf($html, $targetuser);

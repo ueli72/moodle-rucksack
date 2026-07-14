@@ -38,9 +38,14 @@ $userhash = optional_param('user', '', PARAM_TEXT);
 $directid = optional_param('id', 0, PARAM_INT);
 
 $userid = 0;
+$setid = 0;
 
 if (!empty($userhash)) {
-    $userid = (int)local_rucksack_decrypt($userhash);
+    $payload = local_rucksack_decrypt($userhash);
+    if (is_array($payload)) {
+        $userid = $payload['u'];
+        $setid = $payload['s'];
+    }
 } elseif ($directid > 0 && local_rucksack_can_manage()) {
     $userid = $directid;
 } else {
@@ -64,13 +69,13 @@ $PAGE->set_url('/local/rucksack/view.php', ['user' => $userhash]);
 $PAGE->set_heading(get_string('pluginname', 'local_rucksack'));
 $PAGE->set_title(get_string('badgesfor', 'local_rucksack', fullname($targetuser)));
 $PAGE->requires->css('/local/rucksack/styles.css');
-$customcssurl = local_rucksack_get_custom_css_url();
-if ($customcssurl) {
-    $PAGE->requires->css($customcssurl);
+$setcssurl = local_rucksack_get_set_css_url($setid);
+if ($setcssurl) {
+    $PAGE->requires->css($setcssurl);
 }
 
 $renderer = $PAGE->get_renderer('local_rucksack');
-$renderable = new \local_rucksack\output\earned_badges($userid);
+$renderable = new \local_rucksack\output\earned_badges($userid, $setid);
 $data = $renderable->export_for_template($renderer);
 
 // Trainer user selector.
@@ -93,7 +98,7 @@ if ($canmanage) {
         }
 }
 
-$content = $renderer->render_earned_badges_data($data);
+$content = $renderer->render_earned_badges_data($data, $setid);
 
 // Build action buttons (PDF download + browser print) for the screen view.
 $actionshtml = '<div class="local-rucksack-actions">';

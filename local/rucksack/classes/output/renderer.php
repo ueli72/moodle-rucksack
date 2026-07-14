@@ -44,16 +44,17 @@ class renderer extends plugin_renderer_base {
     /**
      * Render the earned badges page from a pre-exported data object.
      *
-     * Used by both the screen view and the PDF export so that a custom template
-     * configured in the block is honoured everywhere.
+     * Used by both the screen view and the PDF export so that the selected
+     * template set is honoured everywhere.
      *
      * @param stdClass $data
+     * @param int $setid
      * @return string
      */
-    public function render_earned_badges_data($data) {
-        $template = local_rucksack_get_custom_template();
-        if ($template) {
-            return $this->render_from_string($template, $data);
+    public function render_earned_badges_data($data, $setid = 0) {
+        $template = local_rucksack_get_template($setid);
+        if ($template && trim($template) !== '') {
+            return $this->render_from_string($template, $data, $setid);
         }
         return $this->render_from_template('local_rucksack/earned_badges', $data);
     }
@@ -64,13 +65,14 @@ class renderer extends plugin_renderer_base {
      *
      * @param string $templatestring
      * @param stdClass $data
+     * @param int $setid
      * @return string
      */
-    protected function render_from_string($templatestring, $data) {
+    protected function render_from_string($templatestring, $data, $setid = 0) {
         $mustache = $this->get_mustache();
         $defaultloader = $mustache->getLoader();
         $mustache->setLoader(new \Mustache\Loader\ArrayLoader(['__custom_template__' => $templatestring]));
-        $mustache->setPartialsLoader(new mustache_partial_loader($defaultloader));
+        $mustache->setPartialsLoader(new mustache_partial_loader($defaultloader, $setid));
         return $mustache->render('__custom_template__', $data);
     }
 }

@@ -15,18 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Local plugin "staticpage" - Version file
+ * Serve CSS for a template set.
  *
  * @package    local_rucksack
  * @copyright  Ueli Leutwyler
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/local/rucksack/lib.php');
 
-$plugin->component = 'local_rucksack';
-$plugin->version = 2026071400;
-$plugin->release = 'v4.5.1';
-//$plugin->requires = 2023100900;
-//$plugin->supported = [403, 403];
-$plugin->maturity = MATURITY_STABLE;
+$setid = optional_param('set', 0, PARAM_INT);
+
+$css = local_rucksack_get_css($setid);
+
+header('Content-Type: text/css; charset=utf-8');
+header('Cache-Control: public, max-age=3600');
+echo $css;
+die();

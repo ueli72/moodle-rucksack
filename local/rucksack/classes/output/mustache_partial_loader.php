@@ -29,17 +29,18 @@ class mustache_partial_loader implements \Mustache\Loader {
     /** @var \Mustache_Loader */
     protected $defaultloader;
 
-    /** @var string|false */
-    protected $custompartial;
+    /** @var int */
+    protected $setid;
 
     /**
      * Constructor.
      *
      * @param \Mustache\Loader $defaultloader
+     * @param int $setid
      */
-    public function __construct($defaultloader) {
+    public function __construct($defaultloader, $setid = 0) {
         $this->defaultloader = $defaultloader;
-        $this->custompartial = local_rucksack_get_custom_badge_row_partial();
+        $this->setid = (int)$setid;
     }
 
     /**
@@ -49,8 +50,11 @@ class mustache_partial_loader implements \Mustache\Loader {
      * @return string
      */
     public function load($name) {
-        if ($name === 'local_rucksack/badge_row' && $this->custompartial !== false) {
-            return $this->custompartial;
+        if ($name === 'local_rucksack/badge_row') {
+            $partial = local_rucksack_get_partial($this->setid);
+            if ($partial !== false && trim($partial) !== '') {
+                return $partial;
+            }
         }
         return $this->defaultloader->load($name);
     }

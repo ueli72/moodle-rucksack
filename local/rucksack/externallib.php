@@ -684,14 +684,16 @@ class local_rucksack_external extends external_api {
         global $PAGE;
 
         $params = self::validate_parameters(self::get_earned_badges_parameters(), ['userhash' => $userhash]);
-        $userid = (int)local_rucksack_decrypt($params['userhash']);
+        $payload = local_rucksack_decrypt($params['userhash']);
+        $userid = is_array($payload) ? $payload['u'] : 0;
+        $setid = is_array($payload) ? $payload['s'] : 0;
         if ($userid <= 0) {
             throw new moodle_exception('invaliduser', 'local_rucksack');
         }
 
         $PAGE->set_context(context_system::instance());
         $renderer = $PAGE->get_renderer('local_rucksack');
-        $renderable = new \local_rucksack\output\earned_badges($userid);
+        $renderable = new \local_rucksack\output\earned_badges($userid, $setid);
         $data = $renderable->export_for_template($renderer);
 
         return [
@@ -729,15 +731,18 @@ class local_rucksack_external extends external_api {
         global $PAGE;
 
         $params = self::validate_parameters(self::get_earned_badges_html_parameters(), ['userhash' => $userhash]);
-        $userid = (int)local_rucksack_decrypt($params['userhash']);
+        $payload = local_rucksack_decrypt($params['userhash']);
+        $userid = is_array($payload) ? $payload['u'] : 0;
+        $setid = is_array($payload) ? $payload['s'] : 0;
         if ($userid <= 0) {
             throw new moodle_exception('invaliduser', 'local_rucksack');
         }
 
         $PAGE->set_context(context_system::instance());
         $renderer = $PAGE->get_renderer('local_rucksack');
-        $renderable = new \local_rucksack\output\earned_badges($userid);
-        return ['html' => $renderer->render($renderable)];
+        $renderable = new \local_rucksack\output\earned_badges($userid, $setid);
+        $data = $renderable->export_for_template($renderer);
+        return ['html' => $renderer->render_earned_badges_data($data, $setid)];
     }
 
     public static function get_earned_badges_html_returns() {
@@ -758,7 +763,7 @@ class local_rucksack_external extends external_api {
         require_capability('local/rucksack:manageconfigs', context_system::instance());
 
         global $CFG;
-        $hash = local_rucksack_encrypt($params['userid']);
+        $hash = local_rucksack_encrypt($params['userid'], 0);
         return [
             'userhash' => $hash,
             'pdfurl' => $CFG->wwwroot . '/local/rucksack/pdf.php?user=' . urlencode($hash),
