@@ -240,9 +240,9 @@ class block_rucksack_edit_form extends block_edit_form {
 
         $treecontainer = html_writer::tag('div', '', ['id' => 'rucksack-comp-tree-root', 'style' => 'margin-top:0.5em;max-height:400px;overflow-y:auto;border:1px solid #ddd;padding:0.5em;border-radius:4px;']);
 
-        $treeurl = json_encode((new moodle_url('/local/rucksack/ajax/competency_tree.php'))->out());
-        $visurl  = json_encode((new moodle_url('/local/rucksack/ajax/competency_visibility.php'))->out());
-        $sorturl = json_encode((new moodle_url('/local/rucksack/ajax/competency_sort.php'))->out());
+        $treeurl = json_encode((new moodle_url('/local/rucksack/competency_tree.php'))->out());
+        $visurl  = json_encode((new moodle_url('/local/rucksack/competency_visibility.php'))->out());
+        $sorturl = json_encode((new moodle_url('/local/rucksack/competency_sort.php'))->out());
         $sesskey = json_encode(sesskey());
         $setid   = (int)$selectedsetid;
 
@@ -258,10 +258,10 @@ class block_rucksack_edit_form extends block_edit_form {
             . 'var toggle=n.haschildren?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"var c=document.getElementById(\'"+childId+"\');if(c){if(c.style.display===\'none\'){c.style.display=\'block\';if(c.innerHTML===\'\'){window.rucksackLoadCompTree("+n.id+",c);}}else{c.style.display=\'none\';}}\\">[+]</button>":"<span style=\\"display:inline-block;width:2em;\\"></span>";'
             . 'var eyeClass=n.visible?"fa-eye":"fa-eye-slash";'
             . 'var eyeBtn="<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackToggleVis("+n.id+",this)\\"><i class=\\"icon fa "+eyeClass+"\\"></i></button>";'
-            . 'var upBtn=i>0?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackSwapSort("+n.id+","+d.nodes[i-1].id+")\\">↑</button>":"";'
-            . 'var downBtn=i<d.nodes.length-1?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackSwapSort("+n.id+","+d.nodes[i+1].id+")\\">↓</button>":"";'
+            . 'var upBtn=i>0?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackSwapSort("+n.id+","+d.nodes[i-1].id+")\\">↑</button>":"<span style=\\"display:inline-block;width:1.5em;\\"></span>";'
+            . 'var downBtn=i<d.nodes.length-1?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackSwapSort("+n.id+","+d.nodes[i+1].id+")\\">↓</button>":"<span style=\\"display:inline-block;width:1.5em;\\"></span>";'
             . 'var rowStyle=n.visible?"":"opacity:0.4;";'
-            . 'html+="<div style=\\"display:flex;align-items:center;gap:0.3em;"+rowStyle+"\\">"+toggle+eyeBtn+upBtn+downBtn+"<span>"+n.name+"</span></div>";'
+            . 'html+="<div style=\\"display:flex;align-items:center;"+rowStyle+"\\">"+"<div style=\\"display:flex;align-items:center;gap:0.3em;min-width:140px;\\">"+toggle+eyeBtn+upBtn+downBtn+"</div>"+"<span style=\\"margin-left:0.5em;\\">"+n.name+"</span></div>";'
             . 'html+="<div id=\\""+childId+"\\" style=\\"display:none;margin-left:1.5em;\\"></div>"}'
             . 'container.innerHTML=html;});};'
             . 'window.rucksackToggleVis=function(compid,btn){'
