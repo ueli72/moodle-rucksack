@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_rucksack';
-$plugin->version = 2026071400;
+$plugin->version = 2026071500;
 $plugin->release = 'v4.5.1';
 //$plugin->requires = 2023100900;
 //$plugin->supported = [403, 403];

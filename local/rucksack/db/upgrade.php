@@ -118,5 +118,25 @@ function xmldb_local_rucksack_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026071400, 'local', 'rucksack');
     }
 
+    if ($oldversion < 2026071500) {
+
+        // Define table local_rucksack_templateset_comp.
+        $table = new xmldb_table('local_rucksack_templateset_comp');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('setid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('competencyid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('visible', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('setid', XMLDB_INDEX_NOTUNIQUE, ['setid']);
+        $table->add_index('setcomp', XMLDB_INDEX_UNIQUE, ['setid', 'competencyid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026071500, 'local', 'rucksack');
+    }
+
     return true;
 }

@@ -254,6 +254,38 @@ function local_rucksack_get_set_css_url($id) {
 }
 
 /**
+ * Return visibility + sort overrides for a template set as an array keyed by competencyid.
+ *
+ * @param int $setid
+ * @return array [competencyid => stdClass {visible, sortorder}]
+ */
+function local_rucksack_get_templateset_comp_overrides($setid) {
+    global $DB;
+    $records = $DB->get_records('local_rucksack_templateset_comp', ['setid' => $setid]);
+    $result = [];
+    foreach ($records as $r) {
+        $result[(int)$r->competencyid] = $r;
+    }
+    return $result;
+}
+
+/**
+ * Check whether a competency (and its subtree) should be hidden for a given set.
+ *
+ * @param int $setid
+ * @param int $competencyid
+ * @return bool true if hidden
+ */
+function local_rucksack_is_competency_hidden($setid, $competencyid) {
+    global $DB;
+    $record = $DB->get_record('local_rucksack_templateset_comp', ['setid' => $setid, 'competencyid' => $competencyid]);
+    if ($record) {
+        return empty($record->visible);
+    }
+    return false;
+}
+
+/**
  * Save an existing template set.
  *
  * @param int $id

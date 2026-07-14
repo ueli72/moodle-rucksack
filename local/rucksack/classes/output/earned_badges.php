@@ -49,6 +49,9 @@ class earned_badges implements renderable, templatable {
     /** @var array */
     protected $configcomps;
 
+    /** @var array competency visibility/sort overrides from the template set */
+    protected $templatesetcomps;
+
     /**
      * Constructor.
      *
@@ -66,6 +69,7 @@ class earned_badges implements renderable, templatable {
             $this->configbadges = [];
             $this->configcomps = [];
         }
+        $this->templatesetcomps = local_rucksack_get_templateset_comp_overrides($this->setid);
     }
 
     /**
@@ -258,6 +262,11 @@ class earned_badges implements renderable, templatable {
 
         $result = [];
         foreach ($records as $record) {
+            // Template-set overrides take precedence over config-set overrides.
+            $tsov = $this->templatesetcomps[$record->id] ?? null;
+            $configsortorder = $tsov ? (int)$tsov->sortorder : ($this->configcomps[$record->id]->sortorder ?? $record->sortorder);
+            $configvisible   = $tsov ? (int)$tsov->visible   : ($this->configcomps[$record->id]->visible ?? 1);
+
             $result[$record->id] = [
                 'id' => $record->id,
                 'shortname' => $record->shortname,
@@ -267,8 +276,8 @@ class earned_badges implements renderable, templatable {
                 'sortorder' => $record->sortorder,
                 'frameworkid' => $record->frameworkid,
                 'frameworkname' => $frameworks[$record->frameworkid]->shortname ?? '',
-                'configsortorder' => $this->configcomps[$record->id]->sortorder ?? $record->sortorder,
-                'configvisible' => $this->configcomps[$record->id]->visible ?? 1,
+                'configsortorder' => $configsortorder,
+                'configvisible' => $configvisible,
             ];
         }
 
@@ -316,6 +325,7 @@ class earned_badges implements renderable, templatable {
         foreach ($pathids as $pid) {
             $pid = (int)$pid;
             if (!isset($current[$pid])) {
+                $tsov = $this->templatesetcomps[$pid] ?? null;
                 $cinfo = $competencies[$pid] ?? [
                     'id' => $pid,
                     'shortname' => get_string('unknowncompetency', 'local_rucksack'),
@@ -325,8 +335,8 @@ class earned_badges implements renderable, templatable {
                     'sortorder' => 0,
                     'frameworkid' => $frameworkid,
                     'frameworkname' => $frameworkname,
-                    'configsortorder' => $this->configcomps[$pid]->sortorder ?? 0,
-                    'configvisible' => $this->configcomps[$pid]->visible ?? 1,
+                    'configsortorder' => $tsov ? (int)$tsov->sortorder : ($this->configcomps[$pid]->sortorder ?? 0),
+                    'configvisible' => $tsov ? (int)$tsov->visible : ($this->configcomps[$pid]->visible ?? 1),
                 ];
                 $current[$pid] = [
                     'info' => $cinfo,
