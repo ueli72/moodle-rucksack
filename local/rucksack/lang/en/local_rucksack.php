@@ -56,3 +56,6 @@ $string['visible'] = 'Sichtbar';
 $string['sortorder'] = 'Sortierung';
 $string['assignusers'] = 'User zuordnen';
 $string['assignedusers'] = 'Zugeordnete User';
+$string['invalidtoken'] = 'Ungültiges oder fehlendes Token';
+$string['nobulkusers'] = 'Keine User angegeben';
+$string['bulkpdferror'] = 'PDFs konnten nicht erzeugt werden';

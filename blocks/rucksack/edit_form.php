@@ -167,6 +167,70 @@ class block_rucksack_edit_form extends block_edit_form {
             . html_writer::tag('span', '', ['id' => 'rucksack-set-status', 'class' => 'local-rucksack-set-status']);
         $mform->addElement('static', 'templateset_buttons', '', $buttons);
 
+        // API token section.
+        $tokenhash = !empty($this->block->config->apitoken) ? $this->block->config->apitoken : '';
+        $token = $tokenhash ? ((int)$this->block->instance->id . '_' . $tokenhash) : '';
+        $tokenurl = new moodle_url('/local/rucksack/bulkpdf.php');
+        $confirmtokengen = json_encode(get_string('confirmtokengen', 'block_rucksack'));
+        $tokenerror = json_encode(get_string('tokenerror', 'block_rucksack'));
+        $tokencopied = json_encode(get_string('tokencopied', 'block_rucksack'));
+
+        $tokendisplay = $token
+            ? '<code id="rucksack-api-token-display" style="font-family:monospace;background:#f5f5f5;padding:4px 8px;border-radius:4px;">' . s($token) . '</code>'
+            : '<em id="rucksack-api-token-display">' . get_string('notoken', 'block_rucksack') . '</em>';
+
+        $tokenajaxurl = json_encode((new moodle_url('/blocks/rucksack/generate_token.php'))->out());
+        $instanceid = (int)$this->block->instance->id;
+        $sesskeyraw = json_encode(sesskey());
+
+        $onclickgenerate = 'if(!confirm(' . $confirmtokengen . '))return;fetch(' . $tokenajaxurl . ',{method:"POST",body:new URLSearchParams({action:"generate",instanceid:' . $instanceid . ',sesskey:' . $sesskeyraw . '})}).then(function(r){return r.json()}).then(function(d){if(d.success&&d.token){var e=document.getElementById("rucksack-api-token-display");if(e){e.outerHTML=\'<code id="rucksack-api-token-display" style="font-family:monospace;background:#f5f5f5;padding:4px 8px;border-radius:4px;">\'+d.token+\'</code>\';}var c=document.getElementById("rucksack-api-token-copy");if(c)c.style.display="inline-block";}else{alert(' . $tokenerror . ');}});';
+
+        $onclickcopy = 'var e=document.getElementById("rucksack-api-token-display");if(e){navigator.clipboard.writeText(e.textContent).then(function(){alert(' . $tokencopied . ');});}';
+
+        $tokenbuttons = html_writer::tag('button', get_string('generatetoken', 'block_rucksack'), [
+                'type' => 'button',
+                'class' => 'btn btn-secondary',
+                'onclick' => $onclickgenerate,
+            ])
+            . ' '
+            . html_writer::tag('button', get_string('copytoken', 'block_rucksack'), [
+                'type' => 'button',
+                'id' => 'rucksack-api-token-copy',
+                'class' => 'btn btn-secondary',
+                'onclick' => $onclickcopy,
+                'style' => $token ? '' : 'display:none;',
+            ]);
+
+        // API section header.
+        $mform->addElement('header', 'apiheader', get_string('api', 'block_rucksack'));
+
+        $tokenhtml = '<div><strong>' . get_string('apitoken', 'block_rucksack') . '</strong><br>'
+            . $tokendisplay . '<br>'
+            . $tokenbuttons . '</div>';
+
+        $mform->addElement('static', 'api_token_section', '', $tokenhtml);
+
+        $exampleurl = $tokenurl->out();
+        $tokplaceholder = $token ? s($token) : '42_xxx';
+        $example_single = $exampleurl . '?token=' . $tokplaceholder . '&users[]=j26a.misimi';
+        $example_multi  = $exampleurl . '?token=' . $tokplaceholder . '&users[]=j26a.misimi&users[]=j26b.mustermann';
+        $example_filename = $exampleurl . '?token=' . $tokplaceholder . '&users[]=j26a.misimi&users[]=j26b.mustermann&filename=meine_klasse';
+        $example_curl = 'curl -H "Authorization: Bearer ' . $tokplaceholder . '" "' . $exampleurl . '?users[]=j26a.misimi"';
+
+        $exampleshtml = '<div style="margin-top:0.5em;"><small class="form-text text-muted">'
+            . get_string('tokenurl', 'block_rucksack', $tokenurl->out()) . '<br><br>'
+            . '<strong>' . get_string('example_single', 'block_rucksack') . '</strong><br>'
+            . '<code>' . $example_single . '</code><br><br>'
+            . '<strong>' . get_string('example_multi', 'block_rucksack') . '</strong><br>'
+            . '<code>' . $example_multi . '</code><br><br>'
+            . '<strong>' . get_string('example_filename', 'block_rucksack') . '</strong><br>'
+            . '<code>' . $example_filename . '</code><br><br>'
+            . '<strong>' . get_string('example_header', 'block_rucksack') . '</strong><br>'
+            . '<code>' . $example_curl . '</code>'
+            . '</small></div>';
+
+        $mform->addElement('static', 'api_examples', '', $exampleshtml);
+
         // Main template textarea.
         $this->add_template_textarea(
             $mform,
