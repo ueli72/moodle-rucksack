@@ -83,3 +83,4 @@ $string['example_multi'] = 'Beispiel für mehrere Lernende (ZIP):';
 $string['example_cohort'] = 'Beispiel für eine Klasse/Cohort (ZIP):';
 $string['example_filename'] = 'Beispiel mit eigenem Dateinamen (optional):';
 $string['example_header'] = 'Alternativ kann das Token auch im Header übergeben werden (curl):';
+$string['loadcomptree'] = 'Kompetenzbaum laden';

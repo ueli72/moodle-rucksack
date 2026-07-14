@@ -238,91 +238,50 @@ class block_rucksack_edit_form extends block_edit_form {
         $mform->addElement('header', 'competencyheader', get_string('competenciesvisibility', 'block_rucksack'));
         $mform->addHelpButton('competencyheader', 'competenciesvisibility', 'block_rucksack');
 
-        $treecontainer = html_writer::tag('div', '', ['id' => 'rucksack-comp-tree-root', 'style' => 'margin-top:0.5em;max-height:400px;overflow-y:auto;']);
-        $mform->addElement('static', 'competency_tree', '', $treecontainer);
+        $treecontainer = html_writer::tag('div', '', ['id' => 'rucksack-comp-tree-root', 'style' => 'margin-top:0.5em;max-height:400px;overflow-y:auto;border:1px solid #ddd;padding:0.5em;border-radius:4px;']);
 
-        // Global JS functions for the competency tree.
         $treeurl = json_encode((new moodle_url('/local/rucksack/ajax/competency_tree.php'))->out());
         $visurl  = json_encode((new moodle_url('/local/rucksack/ajax/competency_visibility.php'))->out());
         $sorturl = json_encode((new moodle_url('/local/rucksack/ajax/competency_sort.php'))->out());
         $sesskey = json_encode(sesskey());
         $setid   = (int)$selectedsetid;
 
-        $script = '<script>
-(function(){
-    var treeUrl = ' . $treeurl . ';
-    var visUrl  = ' . $visurl . ';
-    var sortUrl = ' . $sorturl . ';
-    var sesskey = ' . $sesskey . ';
-    var setid   = ' . $setid . ';
+        // Single inline onclick that defines the three helpers on window and then loads the root.
+        $initjs = 'var treeUrl=' . $treeurl . ';var visUrl=' . $visurl . ';var sortUrl=' . $sorturl . ';var sesskey=' . $sesskey . ';var setid=' . $setid . ';'
+            . 'window.rucksackLoadCompTree=function(parentid,container){'
+            . 'var url=treeUrl+"?setid="+setid+"&parentid="+parentid+"&sesskey="+sesskey;'
+            . 'fetch(url).then(function(r){return r.json()}).then(function(d){'
+            . 'if(!d.success||!d.nodes)return;'
+            . 'var html="";'
+            . 'for(var i=0;i<d.nodes.length;i++){var n=d.nodes[i];'
+            . 'var childId="rucksack-comp-children-"+n.id;'
+            . 'var toggle=n.haschildren?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"var c=document.getElementById(\'"+childId+"\');if(c){if(c.style.display===\'none\'){c.style.display=\'block\';if(c.innerHTML===\'\'){window.rucksackLoadCompTree("+n.id+",c);}}else{c.style.display=\'none\';}}\\">[+]</button>":"<span style=\\"display:inline-block;width:2em;\\"></span>";'
+            . 'var eyeClass=n.visible?"fa-eye":"fa-eye-slash";'
+            . 'var eyeBtn="<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackToggleVis("+n.id+",this)\\"><i class=\\"icon fa "+eyeClass+"\\"></i></button>";'
+            . 'var upBtn=i>0?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackSwapSort("+n.id+","+d.nodes[i-1].id+")\\">↑</button>":"";'
+            . 'var downBtn=i<d.nodes.length-1?"<button type=\\"button\\" class=\\"btn btn-sm btn-link\\" style=\\"padding:0 4px;\\" onclick=\\"window.rucksackSwapSort("+n.id+","+d.nodes[i+1].id+")\\">↓</button>":"";'
+            . 'var rowStyle=n.visible?"":"opacity:0.4;";'
+            . 'html+="<div style=\\"display:flex;align-items:center;gap:0.3em;"+rowStyle+"\\">"+toggle+eyeBtn+upBtn+downBtn+"<span>"+n.name+"</span></div>";'
+            . 'html+="<div id=\\""+childId+"\\" style=\\"display:none;margin-left:1.5em;\\"></div>"}'
+            . 'container.innerHTML=html;});};'
+            . 'window.rucksackToggleVis=function(compid,btn){'
+            . 'var icon=btn.querySelector("i");var isVisible=icon.classList.contains("fa-eye");'
+            . 'var body=new URLSearchParams();body.append("setid",setid);body.append("competencyid",compid);body.append("visible",isVisible?0:1);body.append("sesskey",sesskey);'
+            . 'fetch(visUrl,{method:"POST",body:body}).then(function(r){return r.json()}).then(function(d){'
+            . 'if(d.success){icon.classList.toggle("fa-eye");icon.classList.toggle("fa-eye-slash");btn.parentNode.style.opacity=isVisible?"0.4":"1";}});};'
+            . 'window.rucksackSwapSort=function(compid1,compid2){'
+            . 'var body=new URLSearchParams();body.append("setid",setid);body.append("compid1",compid1);body.append("compid2",compid2);body.append("sesskey",sesskey);'
+            . 'fetch(sortUrl,{method:"POST",body:body}).then(function(r){return r.json()}).then(function(d){'
+            . 'if(d.success){var root=document.getElementById("rucksack-comp-tree-root");if(root){root.innerHTML="";window.rucksackLoadCompTree(0,root);}}});};'
+            . 'var root=document.getElementById("rucksack-comp-tree-root");if(root){root.innerHTML="";window.rucksackLoadCompTree(0,root);}';
 
-    window.rucksackLoadCompTree = function(parentid, container) {
-        var url = treeUrl + "?setid=" + setid + "&parentid=" + parentid + "&sesskey=" + sesskey;
-        fetch(url).then(function(r){return r.json()}).then(function(d){
-            if (!d.success || !d.nodes) return;
-            var html = "";
-            for (var i = 0; i < d.nodes.length; i++) {
-                var n = d.nodes[i];
-                var childId = "rucksack-comp-children-" + n.id;
-                var toggle = n.haschildren
-                    ? "<button type=\"button\" class=\"btn btn-sm btn-link\" style=\"padding:0 4px;\" onclick=\"var c=document.getElementById(\'" + childId + "\');if(c){if(c.style.display===\'none\'){c.style.display=\'block\';if(c.innerHTML===\'\'){window.rucksackLoadCompTree(" + n.id + ",c);}}else{c.style.display=\'none\';}}\">[+]</button>"
-                    : "<span style=\"display:inline-block;width:2em;\"></span>";
-                var eyeClass = n.visible ? "fa-eye" : "fa-eye-slash";
-                var eyeBtn = "<button type=\"button\" class=\"btn btn-sm btn-link\" style=\"padding:0 4px;\" onclick=\"window.rucksackToggleVis(" + n.id + ",this)\"><i class=\"icon fa " + eyeClass + "\"></i></button>";
-                var upBtn = i > 0
-                    ? "<button type=\"button\" class=\"btn btn-sm btn-link\" style=\"padding:0 4px;\" onclick=\"window.rucksackSwapSort(" + n.id + "," + d.nodes[i-1].id + ")\">↑</button>"
-                    : "";
-                var downBtn = i < d.nodes.length - 1
-                    ? "<button type=\"button\" class=\"btn btn-sm btn-link\" style=\"padding:0 4px;\" onclick=\"window.rucksackSwapSort(" + n.id + "," + d.nodes[i+1].id + ")\">↓</button>"
-                    : "";
-                var rowStyle = n.visible ? "" : "opacity:0.4;";
-                html += "<div style=\"display:flex;align-items:center;gap:0.3em;" + rowStyle + "\">" + toggle + eyeBtn + upBtn + downBtn + "<span>" + n.name + "</span></div>";
-                html += "<div id=\"" + childId + "\" style=\"display:none;margin-left:1.5em;\"></div>";
-            }
-            container.innerHTML = html;
-        });
-    };
+        $loadbutton = html_writer::tag('button', get_string('loadcomptree', 'block_rucksack'), [
+            'type' => 'button',
+            'class' => 'btn btn-secondary',
+            'onclick' => $initjs,
+        ]);
 
-    window.rucksackToggleVis = function(compid, btn) {
-        var icon = btn.querySelector("i");
-        var isVisible = icon.classList.contains("fa-eye");
-        var body = new URLSearchParams();
-        body.append("setid", setid);
-        body.append("competencyid", compid);
-        body.append("visible", isVisible ? 0 : 1);
-        body.append("sesskey", sesskey);
-        fetch(visUrl, {method: "POST", body: body}).then(function(r){return r.json()}).then(function(d){
-            if (d.success) {
-                icon.classList.toggle("fa-eye");
-                icon.classList.toggle("fa-eye-slash");
-                btn.parentNode.style.opacity = isVisible ? "0.4" : "1";
-            }
-        });
-    };
-
-    window.rucksackSwapSort = function(compid1, compid2) {
-        var body = new URLSearchParams();
-        body.append("setid", setid);
-        body.append("compid1", compid1);
-        body.append("compid2", compid2);
-        body.append("sesskey", sesskey);
-        fetch(sortUrl, {method: "POST", body: body}).then(function(r){return r.json()}).then(function(d){
-            if (d.success) {
-                var root = document.getElementById("rucksack-comp-tree-root");
-                if (root) { root.innerHTML = ""; window.rucksackLoadCompTree(0, root); }
-            }
-        });
-    };
-
-    // Load root on page load.
-    document.addEventListener("DOMContentLoaded", function(){
-        var root = document.getElementById("rucksack-comp-tree-root");
-        if (root) window.rucksackLoadCompTree(0, root);
-    });
-})();
-</script>';
-
-        $mform->addElement('static', 'competency_script', '', $script);
+        $mform->addElement('static', 'competency_tree', '', $treecontainer . $loadbutton);
 
         // Main template textarea.
         $this->add_template_textarea(
