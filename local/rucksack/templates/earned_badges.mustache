@@ -30,8 +30,7 @@
     <header class="local-rucksack-header">
         <div class="local-rucksack-header-content">
             {{! Page heading: configurable title followed by the user name }}
-            <h1>{{title}} {{username}}</h1>
-            <p class="local-rucksack-meta">{{#str}}issuedon, local_rucksack{{/str}} {{date}}</p>
+            <h1>{{title}} </h1><h2>{{username}}</h2>
         </div>
 
         {{! Optional block logo, rendered in the top-right corner }}
@@ -41,6 +40,11 @@
         </div>
         {{/logourl}}
     </header>
+
+    <div class="local-rucksack-header-meta">
+        <p class="local-rucksack-meta">{{#str}}issuedon, local_rucksack{{/str}} {{date}}</p>
+        <p class="local-rucksack-explanation">{{#str}}explanationtext, local_rucksack{{/str}}</p>
+    </div>
 
     {{! Empty state when no plans or badges exist for the user }}
     {{#nodata}}

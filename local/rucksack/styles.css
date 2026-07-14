@@ -40,6 +40,12 @@
     font-weight: 600;
 }
 
+.local-rucksack-header h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem !important;
+    font-weight: 600;
+}
+
 /* Logo in the top-right corner of the public page */
 .local-rucksack-logo {
     flex: 0 0 auto;
@@ -55,10 +61,25 @@
     height: auto;
 }
 
+/* Full-width meta / explanation block below the title/logo row */
+.local-rucksack-header-meta {
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
 /* Subtitle (e.g. "Earned badges") under the user name */
 .local-rucksack-meta {
     color: #6c757d;
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.25rem;
+    font-size: 0.7rem;
+}
+
+/* Explanation paragraph below the issue date */
+.local-rucksack-explanation {
+    color: #495057;
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.25;
 }
 
 /* ------------------------------------------------------------------

@@ -25,6 +25,7 @@
 $string['pluginname'] = 'Rucksack';
 $string['badgesfor'] = 'Badges für {$a}';
 $string['issuedon'] = 'Ausgestellt am {$a}';
+$string['explanationtext'] = 'Dieser Kompetenznachweis bestätigt, dass die aufgelisteten Kompetenzen während des Unterrichts an der BWS Uster erworben wurden. Sie umfassen theoretische und praktische Fähigkeiten, die für den Einstieg in die Berufswelt und eine erfolgreiche berufliche Laufbahn von Bedeutung sind. Die Auflistung dient dazu, die umfassende Ausbildung und Qualifikation des Absolventen zu verdeutlichen.';
 $string['dateissued'] = 'Erhalten am:';
 $string['downloadpdf'] = 'PDF herunterladen';
 $string['print'] = 'Drucken';
