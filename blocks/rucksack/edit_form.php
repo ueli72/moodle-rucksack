@@ -105,6 +105,12 @@ class block_rucksack_edit_form extends block_edit_form {
         foreach ($sets as $set) {
             $options[$set->id] = format_string($set->name);
         }
+
+        // Build AJAX URL and session key early so they are available for the
+        // select onchange handler that runs before the button definitions.
+        $ajaxurl = json_encode((new moodle_url('/blocks/rucksack/templateset.php'))->out());
+        $sesskey = json_encode(sesskey());
+
         $onchangeload = 'var fields={t:document.querySelector(\'textarea[name="config_template"]\'),p:document.querySelector(\'textarea[name="config_template_badge_row"]\'),c:document.querySelector(\'textarea[name="config_customcss"]\')};var sb=document.getElementById("rucksack-save-set");var db=document.getElementById("rucksack-delete-set");fetch(' . $ajaxurl . '?action=load&id=\'+this.value+\'&sesskey=' . urlencode(sesskey()) . ').then(function(r){return r.json()}).then(function(d){if(d.success){if(fields.t)fields.t.value=d.template||"";if(fields.p)fields.p.value=d.partial||"";if(fields.c)fields.c.value=d.css||"";}if(sb){if(!!d.isstandard){sb.setAttribute("disabled","disabled");}else{sb.removeAttribute("disabled");}}if(db){if(!!d.isstandard){db.setAttribute("disabled","disabled");}else{db.removeAttribute("disabled");}}});';
 
         $select = $mform->createElement('select', 'config_templateset', get_string('templateset', 'block_rucksack'), $options, ['onchange' => $onchangeload]);
@@ -113,8 +119,7 @@ class block_rucksack_edit_form extends block_edit_form {
         $mform->addHelpButton('config_templateset', 'templateset', 'block_rucksack');
 
         // Set management buttons.
-        $ajaxurl = json_encode((new moodle_url('/blocks/rucksack/templateset.php'))->out());
-        $sesskey = json_encode(sesskey());
+        // $ajaxurl and $sesskey are already defined above.
         $saved = json_encode(get_string('setsaved', 'block_rucksack'));
         $created = json_encode(get_string('setcreated', 'block_rucksack'));
         $deleted = json_encode(get_string('setdeleted', 'block_rucksack'));
