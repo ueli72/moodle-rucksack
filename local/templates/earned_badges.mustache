@@ -1,0 +1,105 @@
+{{!
+    local/rucksack/templates/earned_badges.mustache
+    ----------------------------------------------------------------
+    Main template for the public rucksack page (earned badges).
+    It is used for both the screen view and the PDF output.
+
+    Data context (supplied by the local_rucksack earned_badges renderable):
+    - username          Name of the rucksack owner
+    - date              Generation date of the page
+    - title             Configurable page title, followed by the user name
+    - pdfurl            URL to download the PDF version
+    - logourl           (optional) URL of the uploaded block logo
+    - nodata            True if no plans or badges are available
+    - plans             Array of learning-plan/framework groups
+
+    Each plan object contains:
+    - plan              Human-readable plan/framework name
+    - planbadges        Badges directly attached to the plan
+    - sections          Competency hierarchy within the plan
+
+    Each section object contains:
+    - name              Competency title
+    - level             Nesting depth (1-5), used for CSS font sizes
+    - haschildren       True if this competency has child competencies
+    - hidetitle         True if the leaf title equals the badge name (then hide it)
+    - hasbadges         True if the competency contains badges
+    - badgerows         Array of badge rows (uses the badge_row partial)
+}}
+<div class="local-rucksack-container">
+    <header class="local-rucksack-header">
+        <div class="local-rucksack-header-content">
+            {{! Page heading: configurable title followed by the user name }}
+            <h1>{{title}} </h1><h2>{{username}}</h2>
+        </div>
+
+        {{! Optional block logo, rendered in the top-right corner }}
+        {{#logourl}}
+        <div class="local-rucksack-logo">
+            <img src="{{logourl}}" alt="{{#str}}pluginname, block_rucksack{{/str}}">
+        </div>
+        {{/logourl}}
+    </header>
+
+    <div class="local-rucksack-header-meta">
+        <p class="local-rucksack-meta">{{#str}}issuedon, local_rucksack{{/str}} {{date}}</p>
+        <p class="local-rucksack-explanation">{{#str}}explanationtext, local_rucksack{{/str}}</p>
+    </div>
+
+    {{! Empty state when no plans or badges exist for the user }}
+    {{#nodata}}
+    <p class="local-rucksack-empty">{{#str}}nobadges, local_rucksack{{/str}}</p>
+    {{/nodata}}
+
+    {{! Main badge tree: grouped by learning plan/framework }}
+    {{^nodata}}
+    <ul class="local-rucksack-tree">
+        {{#plans}}
+        <li class="local-rucksack-framework">
+            {{! Plan/framework title temporarily hidden from the public view }}
+            <!-- <h2 class="local-rucksack-framework-title">{{plan}}</h2> -->
+
+            {{! Badges attached directly to the plan (not under a competency). }}
+            {{! The .0 guard ensures the list only appears if there is at least one badge. }}
+            {{#planbadges.0}}
+            <div class="local-rucksack-badge-list">
+                {{#planbadges}}
+                    {{> local_rucksack/badge_row}}
+                {{/planbadges}}
+            </div>
+            {{/planbadges.0}}
+
+            {{! Competency hierarchy within the plan. }}
+            {{! The .0 guard ensures the section block only appears if there is at least one section. }}
+            {{#sections.0}}
+            {{#sections}}
+            <div class="local-rucksack-competency level-{{level}}">
+                {{! Competency titles: show title for parent competencies or for leaf }}
+                {{! competencies whose title differs from the badge name. }}
+                {{#haschildren}}
+                <h3 class="local-rucksack-competency-title">{{name}}</h3>
+                {{/haschildren}}
+                {{^haschildren}}
+                {{^hidetitle}}
+                <h3 class="local-rucksack-competency-title">{{name}}</h3>
+                {{/hidetitle}}
+                {{/haschildren}}
+
+                {{! Badges earned inside this competency. }}
+                {{#hasbadges}}
+                <div class="local-rucksack-badge-list">
+                    {{#badgerows}}
+                    {{#.}}
+                    {{> local_rucksack/badge_row}}
+                    {{/.}}
+                    {{/badgerows}}
+                </div>
+                {{/hasbadges}}
+            </div>
+            {{/sections}}
+            {{/sections.0}}
+        </li>
+        {{/plans}}
+    </ul>
+    {{/nodata}}
+</div>

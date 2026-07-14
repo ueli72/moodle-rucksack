@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/rucksack/db" VERSION="20260713" COMMENT="XMLDB file for local_rucksack plugin">
+    <TABLES>
+        <TABLE NAME="local_rucksack_config" COMMENT="Global configuration sets for badge display">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Configuration set name" PREVIOUS="id" NEXT="description"/>
+                <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Optional description" PREVIOUS="name" NEXT="frameworkid"/>
+                <FIELD NAME="frameworkid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="Optional competency framework filter" PREVIOUS="description" NEXT="createdby"/>
+                <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="User who created the set" PREVIOUS="frameworkid" NEXT="timecreated"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Creation timestamp" PREVIOUS="createdby" NEXT="timemodified"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Last modification timestamp" PREVIOUS="timecreated"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="createdby" UNIQUE="false" FIELDS="createdby"/>
+            </INDEXES>
+        </TABLE>
+
+        <TABLE NAME="local_rucksack_config_comp" COMMENT="Competency visibility and ordering within a configuration set">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="configid"/>
+                <FIELD NAME="configid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Parent configuration set" PREVIOUS="id" NEXT="competencyid"/>
+                <FIELD NAME="competencyid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Competency ID" PREVIOUS="configid" NEXT="sortorder"/>
+                <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" COMMENT="Ordering within the set" PREVIOUS="competencyid" NEXT="visible"/>
+                <FIELD NAME="visible" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="1" COMMENT="Whether the competency group is visible" PREVIOUS="sortorder"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="configid" UNIQUE="false" FIELDS="configid"/>
+                <INDEX NAME="configcomp" UNIQUE="true" FIELDS="configid, competencyid"/>
+            </INDEXES>
+        </TABLE>
+
+        <TABLE NAME="local_rucksack_config_badge" COMMENT="Badge visibility and ordering within a configuration set">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="configid"/>
+                <FIELD NAME="configid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Parent configuration set" PREVIOUS="id" NEXT="badgeid"/>
+                <FIELD NAME="badgeid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Badge ID" PREVIOUS="configid" NEXT="sortorder"/>
+                <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" COMMENT="Ordering within the competency group" PREVIOUS="badgeid" NEXT="visible"/>
+                <FIELD NAME="visible" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="1" COMMENT="Whether the badge is visible" PREVIOUS="sortorder"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="configid" UNIQUE="false" FIELDS="configid"/>
+                <INDEX NAME="configbadge" UNIQUE="true" FIELDS="configid, badgeid"/>
+            </INDEXES>
+        </TABLE>
+
+        <TABLE NAME="local_rucksack_user_config" COMMENT="Assignment of configuration sets to users">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="User ID" PREVIOUS="id" NEXT="configid"/>
+                <FIELD NAME="configid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Assigned configuration set" PREVIOUS="userid" NEXT="timecreated"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Creation timestamp" PREVIOUS="configid" NEXT="timemodified"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Last modification timestamp" PREVIOUS="timecreated"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+                <INDEX NAME="userconfig" UNIQUE="true" FIELDS="userid, configid"/>
+            </INDEXES>
+        </TABLE>
+
+        <TABLE NAME="local_rucksack_templateset" COMMENT="Template sets for public rucksack pages">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Template set name" PREVIOUS="id" NEXT="templatetext"/>
+                <FIELD NAME="templatetext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Main earned_badges template content" PREVIOUS="name" NEXT="partialtext"/>
+                <FIELD NAME="partialtext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="badge_row partial template content" PREVIOUS="templatetext" NEXT="csstext"/>
+                <FIELD NAME="csstext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Custom CSS content" PREVIOUS="partialtext" NEXT="isstandard"/>
+                <FIELD NAME="isstandard" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" COMMENT="Whether this is the read-only standard set" PREVIOUS="csstext" NEXT="timecreated"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Creation timestamp" PREVIOUS="isstandard" NEXT="timemodified"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Last modification timestamp" PREVIOUS="timecreated"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="isstandard" UNIQUE="false" FIELDS="isstandard"/>
+            </INDEXES>
+        </TABLE>
+    </TABLES>
+</XMLDB>

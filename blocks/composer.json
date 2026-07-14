@@ -1,0 +1,19 @@
+{
+    "name": "moodle-rucksack",
+    "description": "A block to provide a public view to users badges of moodle",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Ueli Leutwyler",
+            "email": "ueli@modularity.ch"
+        }
+    ],
+    "type": "moodle-block",
+    "require": {
+      "composer/installers": "~1.0",
+        "chillerlan/php-qrcode": "^5.0"
+    },
+    "extra": {
+      "installer-name": "rucksack"
+    }
+}
