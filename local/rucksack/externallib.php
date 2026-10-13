@@ -776,4 +776,192 @@ class local_rucksack_external extends external_api {
             'pdfurl' => new external_value(PARAM_URL, 'PDF URL'),
         ]);
     }
+
+    // ============================
+    // Integration API (server-to-server)
+    // ============================
+
+    /**
+     * Returns description of rucksack_get_earned_data parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function get_earned_data_parameters() {
+        return new external_function_parameters([
+            'userid' => new external_value(PARAM_INT, 'Moodle user ID'),
+            'setid' => new external_value(PARAM_INT, 'Optional template set ID (0 = standard set)', VALUE_DEFAULT, 0),
+            'includeimages' => new external_value(PARAM_BOOL, 'Include badge images as base64 data', VALUE_DEFAULT, false),
+        ]);
+    }
+
+    /**
+     * Single badge structure used by get_earned_data returns.
+     *
+     * @return external_single_structure
+     */
+    protected static function earned_data_badge_structure() {
+        return new external_single_structure([
+            'badgeid' => new external_value(PARAM_INT, 'Badge ID'),
+            'badgename' => new external_value(PARAM_TEXT, 'Badge name'),
+            'description' => new external_value(PARAM_RAW, 'Badge description (may contain HTML)'),
+            'imageurl' => new external_value(PARAM_URL, 'Badge image URL'),
+            'dateissued' => new external_value(PARAM_INT, 'Issue date (unix timestamp)'),
+            'dateissuedstr' => new external_value(PARAM_TEXT, 'Issue date formatted (d.m.Y)'),
+            'imagemime' => new external_value(PARAM_TEXT, 'Badge image MIME type (when includeimages=true)', VALUE_OPTIONAL),
+            'imagebase64' => new external_value(PARAM_RAW, 'Badge image data, base64 without data URI prefix (when includeimages=true)', VALUE_OPTIONAL),
+        ]);
+    }
+
+    /**
+     * Returns description of rucksack_get_earned_data return values
+     *
+     * @return external_single_structure
+     */
+    public static function get_earned_data_returns() {
+        return new external_single_structure([
+            'userid' => new external_value(PARAM_INT, 'Moodle user ID'),
+            'username' => new external_value(PARAM_TEXT, 'Full name'),
+            'firstname' => new external_value(PARAM_TEXT, 'First name'),
+            'lastname' => new external_value(PARAM_TEXT, 'Last name'),
+            'date' => new external_value(PARAM_TEXT, 'Generation date (d.m.Y)'),
+            'nodata' => new external_value(PARAM_BOOL, 'True when the user has no earned badges'),
+            'plans' => new external_multiple_structure(
+                new external_single_structure([
+                    'plan' => new external_value(PARAM_TEXT, 'Competency framework name'),
+                    'planid' => new external_value(PARAM_TEXT, 'Framework identifier (framework_<id>)'),
+                    'planbadges' => new external_multiple_structure(
+                        self::earned_data_badge_structure(),
+                        'Badges directly attached to the framework (not under a competency)',
+                        VALUE_OPTIONAL
+                    ),
+                    'sections' => new external_multiple_structure(
+                        new external_single_structure([
+                            'level' => new external_value(PARAM_INT, 'Nesting level of the competency (1-5)'),
+                            'name' => new external_value(PARAM_TEXT, 'Competency name'),
+                            'description' => new external_value(PARAM_RAW, 'Competency description (may contain HTML)'),
+                            'haschildren' => new external_value(PARAM_BOOL, 'Competency has child competencies'),
+                            'hasbadges' => new external_value(PARAM_BOOL, 'Section contains badges'),
+                            'hidetitle' => new external_value(PARAM_BOOL, 'Competency title is redundant with the badge name'),
+                            'badges' => new external_multiple_structure(
+                                self::earned_data_badge_structure(),
+                                'Badges earned within this competency'
+                            ),
+                        ]),
+                        'Competency hierarchy flattened into display order'
+                    ),
+                ]),
+                'Earned badges grouped by competency framework'
+            ),
+        ]);
+    }
+
+    /**
+     * Normalize a badge info array (as produced by the earned_badges renderable)
+     * for the integration API and optionally embed the badge image as base64.
+     *
+     * @param array $badgeinfo
+     * @param bool $includeimages
+     * @return array
+     */
+    protected static function normalize_badge_for_integration($badgeinfo, $includeimages) {
+        $badgeid = (int)($badgeinfo['badgeid'] ?? 0);
+        $dateissued = (int)($badgeinfo['dateissued'] ?? 0);
+
+        $badge = [
+            'badgeid' => $badgeid,
+            'badgename' => $badgeinfo['badgename'] ?? '',
+            'description' => $badgeinfo['description'] ?? '',
+            'imageurl' => $badgeinfo['badgeurl'] ?? '',
+            'dateissued' => $dateissued,
+            'dateissuedstr' => $dateissued > 0 ? date('d.m.Y', $dateissued) : '',
+        ];
+
+        if ($includeimages && $badgeid > 0) {
+            $datauri = local_rucksack_badge_image_datauri($badgeid);
+            if ($datauri && preg_match('/^data:([^;]+);base64,/', $datauri, $m)) {
+                $badge['imagemime'] = $m[1];
+                $badge['imagebase64'] = substr($datauri, strpos($datauri, ';base64,') + 8);
+            }
+        }
+
+        return $badge;
+    }
+
+    /**
+     * Get structured earned badge data grouped by competency framework for a user.
+     *
+     * Reuses the same data pipeline as the public rucksack page
+     * (config sets, template set overrides, competency hierarchy).
+     *
+     * @param int $userid
+     * @param int $setid
+     * @param bool $includeimages
+     * @return array
+     */
+    public static function get_earned_data($userid, $setid = 0, $includeimages = false) {
+        global $PAGE;
+
+        $params = self::validate_parameters(self::get_earned_data_parameters(), [
+            'userid' => $userid,
+            'setid' => $setid,
+            'includeimages' => $includeimages,
+        ]);
+        self::validate_context(context_system::instance());
+        require_capability('local/rucksack:integration', context_system::instance());
+
+        // Ensure the user exists.
+        \core_user::get_user($params['userid'], 'id', MUST_EXIST);
+
+        $PAGE->set_context(context_system::instance());
+        $renderer = $PAGE->get_renderer('local_rucksack');
+        $renderable = new \local_rucksack\output\earned_badges($params['userid'], $params['setid']);
+        $data = $renderable->export_for_template($renderer);
+
+        $result = [
+            'userid' => (int)$params['userid'],
+            'username' => $data->username ?? '',
+            'firstname' => $data->firstname ?? '',
+            'lastname' => $data->lastname ?? '',
+            'date' => $data->date ?? date('d.m.Y'),
+            'nodata' => !empty($data->nodata),
+            'plans' => [],
+        ];
+
+        if (empty($result['nodata']) && !empty($data->plans)) {
+            foreach ($data->plans as $plan) {
+                $sections = [];
+                foreach ($plan->sections ?? [] as $section) {
+                    $badges = [];
+                    foreach ($section['badgerows'] ?? [] as $row) {
+                        foreach ($row as $badgeinfo) {
+                            $badges[] = self::normalize_badge_for_integration($badgeinfo, $params['includeimages']);
+                        }
+                    }
+                    $sections[] = [
+                        'level' => (int)($section['level'] ?? 1),
+                        'name' => $section['name'] ?? '',
+                        'description' => $section['description'] ?? '',
+                        'haschildren' => !empty($section['haschildren']),
+                        'hasbadges' => !empty($section['hasbadges']),
+                        'hidetitle' => !empty($section['hidetitle']),
+                        'badges' => $badges,
+                    ];
+                }
+
+                $planbadges = [];
+                foreach ($plan->planbadges ?? [] as $badgeinfo) {
+                    $planbadges[] = self::normalize_badge_for_integration($badgeinfo, $params['includeimages']);
+                }
+
+                $result['plans'][] = [
+                    'plan' => $plan->plan ?? '',
+                    'planid' => $plan->planid ?? '',
+                    'planbadges' => $planbadges,
+                    'sections' => $sections,
+                ];
+            }
+        }
+
+        return $result;
+    }
 }

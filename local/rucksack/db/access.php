@@ -34,4 +34,15 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
+    // Read-only capability for server-to-server integrations (e.g. SIMSys NG).
+    // Grants access to earned badge data of users via the webservice, without
+    // allowing configuration changes. Typically assigned to a service account.
+    'local/rucksack:integration' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

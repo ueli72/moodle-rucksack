@@ -121,6 +121,15 @@ $functions = [
         'capabilities'  => 'local/rucksack:manageconfigs',
         'ajax'          => true,
     ],
+    'rucksack_get_earned_data' => [
+        'classname'     => 'local_rucksack_external',
+        'methodname'    => 'get_earned_data',
+        'classpath'     => 'local/rucksack/externallib.php',
+        'description'   => 'Get structured earned badge data grouped by competency framework for a user (server-to-server integration)',
+        'type'          => 'read',
+        'capabilities'  => 'local/rucksack:integration',
+        'ajax'          => true,
+    ],
 ];
 
 $services = [
@@ -139,6 +148,7 @@ $services = [
             'rucksack_get_earned_badges',
             'rucksack_get_earned_badges_html',
             'rucksack_get_earned_badges_pdf_url',
+            'rucksack_get_earned_data',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
