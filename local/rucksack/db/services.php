@@ -130,6 +130,15 @@ $functions = [
         'capabilities'  => 'local/rucksack:integration',
         'ajax'          => true,
     ],
+    'rucksack_find_user' => [
+        'classname'     => 'local_rucksack_external',
+        'methodname'    => 'find_user',
+        'classpath'     => 'local/rucksack/externallib.php',
+        'description'   => 'Find a Moodle user by username, email or idnumber (server-to-server integration)',
+        'type'          => 'read',
+        'capabilities'  => 'local/rucksack:integration',
+        'ajax'          => true,
+    ],
 ];
 
 $services = [
@@ -149,6 +158,7 @@ $services = [
             'rucksack_get_earned_badges_html',
             'rucksack_get_earned_badges_pdf_url',
             'rucksack_get_earned_data',
+            'rucksack_find_user',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

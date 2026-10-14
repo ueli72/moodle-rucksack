@@ -964,4 +964,114 @@ class local_rucksack_external extends external_api {
 
         return $result;
     }
+
+    // ============================
+    // User resolution (replaces core_user_get_users_by_field so the
+    // plugin-defined webservice service works without core functions)
+    // ============================
+
+    /**
+     * Returns description of rucksack_find_user parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function find_user_parameters() {
+        return new external_function_parameters([
+            'value' => new external_value(PARAM_TEXT, 'Search value (login, email or idnumber)'),
+            'field' => new external_value(
+                PARAM_ALPHA,
+                "Field to match: auto (default), username, email or idnumber",
+                VALUE_DEFAULT,
+                'auto'
+            ),
+        ]);
+    }
+
+    /**
+     * Returns description of rucksack_find_user return values
+     *
+     * @return external_single_structure
+     */
+    public static function find_user_returns() {
+        return new external_single_structure([
+            'count' => new external_value(PARAM_INT, 'Number of matching users'),
+            'users' => new external_multiple_structure(
+                new external_single_structure([
+                    'id' => new external_value(PARAM_INT, 'Moodle user ID'),
+                    'username' => new external_value(PARAM_TEXT, 'Username'),
+                    'email' => new external_value(PARAM_TEXT, 'Email (may be anonymised/hashed)', VALUE_OPTIONAL),
+                    'idnumber' => new external_value(PARAM_TEXT, 'ID number', VALUE_OPTIONAL),
+                    'fullname' => new external_value(PARAM_TEXT, 'Full name'),
+                    'matchedfield' => new external_value(PARAM_TEXT, 'Field that matched (username/email/idnumber)'),
+                ])
+            ),
+        ]);
+    }
+
+    /**
+     * Find Moodle users by username, email or idnumber (exact match).
+     *
+     * @param string $value
+     * @param string $field auto|username|email|idnumber
+     * @return array
+     */
+    public static function find_user($value, $field = 'auto') {
+        global $DB;
+
+        $params = self::validate_parameters(self::find_user_parameters(), [
+            'value' => $value,
+            'field' => $field,
+        ]);
+        self::validate_context(context_system::instance());
+        require_capability('local/rucksack:integration', context_system::instance());
+
+        $value = trim($params['value']);
+        if ($value === '') {
+            throw new invalid_parameter_exception('Empty search value');
+        }
+
+        $fieldmap = [
+            'username' => ['username'],
+            'email' => ['email'],
+            'idnumber' => ['idnumber'],
+            'auto' => ['username', 'email', 'idnumber'],
+        ];
+        $allowed = $fieldmap[strtolower($params['field'])] ?? $fieldmap['auto'];
+
+        $search = core_text::strtolower($value);
+        $conditions = [];
+        $sqlparams = [];
+        foreach ($allowed as $i => $f) {
+            $conditions[] = "LOWER($f) = :f$i";
+            $sqlparams["f$i"] = $search;
+        }
+
+        $sql = "SELECT id, username, email, idnumber, firstname, lastname
+                  FROM {user}
+                 WHERE deleted = 0 AND confirmed = 1
+                   AND (" . implode(' OR ', $conditions) . ")";
+        $records = $DB->get_records_sql($sql, $sqlparams);
+
+        $users = [];
+        foreach ($records as $r) {
+            $matched = '';
+            foreach ($allowed as $f) {
+                $fieldvalue = trim((string)($r->$f ?? ''));
+                if ($fieldvalue !== '' && core_text::strtolower($fieldvalue) === $search) {
+                    $matched = $f;
+                    break;
+                }
+            }
+            $users[] = [
+                'id' => (int)$r->id,
+                'username' => $r->username ?? '',
+                'email' => $r->email ?? '',
+                'idnumber' => $r->idnumber ?? '',
+                'fullname' => fullname($r),
+                'matchedfield' => $matched,
+            ];
+        }
+
+        return ['count' => count($users), 'users' => $users];
+    }
 }
