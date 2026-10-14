@@ -1074,4 +1074,54 @@ class local_rucksack_external extends external_api {
 
         return ['count' => count($users), 'users' => $users];
     }
+
+    // ============================
+    // Template sets (Rucksack-Sets für die Badge-Ansicht)
+    // ============================
+
+    /**
+     * Returns description of rucksack_get_templatesets parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function get_templatesets_parameters() {
+        return new external_function_parameters([]);
+    }
+
+    /**
+     * Returns description of rucksack_get_templatesets return values
+     *
+     * @return external_multiple_structure
+     */
+    public static function get_templatesets_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'id' => new external_value(PARAM_INT, 'Template set ID (0 = standard set)'),
+                'name' => new external_value(PARAM_TEXT, 'Set name'),
+                'isstandard' => new external_value(PARAM_BOOL, 'True for the read-only standard set'),
+            ])
+        );
+    }
+
+    /**
+     * List the rucksack template sets (visibility/sorting per set).
+     *
+     * @return array
+     */
+    public static function get_templatesets() {
+        self::validate_parameters(self::get_templatesets_parameters(), []);
+        self::validate_context(context_system::instance());
+        require_capability('local/rucksack:integration', context_system::instance());
+
+        $sets = local_rucksack_get_templatesets();
+        $result = [];
+        foreach ($sets as $set) {
+            $result[] = [
+                'id' => (int)$set->id,
+                'name' => (string)$set->name,
+                'isstandard' => !empty($set->isstandard),
+            ];
+        }
+        return $result;
+    }
 }

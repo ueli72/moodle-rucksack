@@ -139,6 +139,15 @@ $functions = [
         'capabilities'  => 'local/rucksack:integration',
         'ajax'          => true,
     ],
+    'rucksack_get_templatesets' => [
+        'classname'     => 'local_rucksack_external',
+        'methodname'    => 'get_templatesets',
+        'classpath'     => 'local/rucksack/externallib.php',
+        'description'   => 'List rucksack template sets (badge view configurations)',
+        'type'          => 'read',
+        'capabilities'  => 'local/rucksack:integration',
+        'ajax'          => true,
+    ],
 ];
 
 $services = [
@@ -159,6 +168,7 @@ $services = [
             'rucksack_get_earned_badges_pdf_url',
             'rucksack_get_earned_data',
             'rucksack_find_user',
+            'rucksack_get_templatesets',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
